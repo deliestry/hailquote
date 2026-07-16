@@ -145,13 +145,14 @@ const legalTexts = {
     <p><strong>Director:</strong> Emin Burzic<br>
     <strong>Administradora:</strong> Amanda Colinetti</p>
     <h3>Kontakt</h3>
-    <p>Telefon: <a href="tel:+34658116486">+34 658 116 486</a></p>
+    <p>E-Mail: <a href="mailto:service@deliestry.eu">service@deliestry.eu</a><br>
+    Telefon: <a href="tel:+34658116486">+34 658 116 486</a></p>
     <h3>Steuer- und Zollangaben</h3>
     <p><strong>VAT / NIF:</strong> B44950608<br>
     <strong>EORI:</strong> ESB44950608</p>
     <h3>Operativer Kontakt</h3>
     <p>Amanda Colinetti<br>DELIESTRY, S.L.U.</p>
-    <p class="legal-note"><strong>Noch zu ergänzen:</strong> Eine geschäftliche E-Mail-Adresse sowie gegebenenfalls die Daten des Registro Mercantil. Das Impressum sollte nach Ergänzung rechtlich geprüft werden.</p>`,
+    <p class="legal-note"><strong>Noch zu ergänzen:</strong> Gegebenenfalls die Eintragungsdaten des Registro Mercantil. Das Impressum sollte rechtlich geprüft werden.</p>`,
   privacy: `
     <h2 id="legalTitle">Datenschutzhinweise</h2>
     <p>Die Anwendung verarbeitet Benutzer-, Kunden-, Fahrzeug- und Angebotsdaten zur Kalkulation von Hagelschäden und zur Erstellung von Angeboten.</p>
