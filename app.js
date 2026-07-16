@@ -656,10 +656,12 @@ async function generateBudgetPdf(data, totals, lang, action = "save", previewWin
   }
 }
 
-async function generatePdf() {
+async function generatePdf(language) {
   if (!validateQuote()) return;
   if (!window.jspdf?.jsPDF) return window.print();
-  const lang = selectedOfferLanguage(), t = offerText[lang], data = currentQuoteData(), totals = calculate(), company = store.company();
+  const lang = typeof language === "string" && ["de", "en", "es"].includes(language) ? language : selectedOfferLanguage();
+  $("#offerLanguage").value = lang;
+  const t = offerText[lang], data = currentQuoteData(), totals = calculate(), company = store.company();
   return generateBudgetPdf(data, totals, lang);
   const { jsPDF } = window.jspdf;
   const pdf = new jsPDF({ unit: "mm", format: "a4" });
@@ -761,6 +763,7 @@ $("#uiLanguage").addEventListener("change", event => {
 $("#previewOffer").addEventListener("click", previewPdf);
 $("#exportPdf").addEventListener("click", generatePdf);
 $("#printOffer").addEventListener("click", generatePdf);
+document.querySelectorAll("[data-pdf-language]").forEach(button => button.addEventListener("click", () => generatePdf(button.dataset.pdfLanguage)));
 document.querySelectorAll("[data-close-modal]").forEach(el => el.addEventListener("click", closeOffer));
 document.addEventListener("keydown", event => { if (event.key === "Escape") closeOffer(); });
 $("#saveCustomer").addEventListener("click", saveCustomer);
