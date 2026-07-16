@@ -1,6 +1,6 @@
 const translations = {
   de: {
-    appLanguage: "App-Sprache", newQuote: "Neues Angebot", saveDraft: "Entwurf speichern", draftSaved: "Der Entwurf wurde für den späteren Versand im Archiv gespeichert.", exportPdf: "Als PDF exportieren", archive: "Archiv", settings: "Firma",
+    appLanguage: "App-Sprache", newQuote: "Neues Angebot", saveDraft: "Entwurf speichern", draftSaved: "Der Entwurf wurde für den späteren Versand im Archiv gespeichert.", exportPdf: "Als PDF exportieren", archive: "Archiv", settings: "Firma", users: "Benutzer", userManagement: "Benutzerrechte", userManagementHint: "Rollen für angemeldete Benutzer festlegen", roleAdmin: "Administrator", roleEditor: "Bearbeiter", roleViewer: "Betrachter",
     eyebrow: "KALKULATION & ANGEBOT", title: "Hagelschaden sicher kalkulieren.",
     subtitle: "Schaden erfassen, Kosten berechnen und ein professionelles Kundenangebot erstellen.",
     autoSaved: "Lokal gespeichert", customer: "Kundendaten", customerHint: "Empfänger des Angebots",
@@ -30,7 +30,7 @@ const translations = {
     parts: ["Motorhaube", "Dach", "Kofferraumdeckel", "Kotflügel vorne links", "Kotflügel vorne rechts", "Tür vorne links", "Tür vorne rechts", "Tür hinten links", "Tür hinten rechts", "Seitenteil links", "Seitenteil rechts"]
   },
   en: {
-    appLanguage: "App language", newQuote: "New quote", saveDraft: "Save draft", draftSaved: "The draft was saved in the archive for later sending.", exportPdf: "Export PDF", archive: "Archive", settings: "Company",
+    appLanguage: "App language", newQuote: "New quote", saveDraft: "Save draft", draftSaved: "The draft was saved in the archive for later sending.", exportPdf: "Export PDF", archive: "Archive", settings: "Company", users: "Users", userManagement: "User permissions", userManagementHint: "Assign roles to signed-in users", roleAdmin: "Administrator", roleEditor: "Editor", roleViewer: "Viewer",
     eyebrow: "CALCULATION & QUOTE", title: "Calculate hail damage with confidence.",
     subtitle: "Record damage, calculate costs and create a professional customer quote.",
     autoSaved: "Saved locally", customer: "Customer details", customerHint: "Recipient of the quote",
@@ -60,7 +60,7 @@ const translations = {
     parts: ["Hood", "Roof", "Trunk lid", "Front left fender", "Front right fender", "Front left door", "Front right door", "Rear left door", "Rear right door", "Left quarter panel", "Right quarter panel"]
   },
   es: {
-    appLanguage: "Idioma de la app", newQuote: "Nuevo presupuesto", saveDraft: "Guardar borrador", draftSaved: "El borrador se ha guardado en el archivo para enviarlo más tarde.", exportPdf: "Exportar PDF", archive: "Archivo", settings: "Empresa",
+    appLanguage: "Idioma de la app", newQuote: "Nuevo presupuesto", saveDraft: "Guardar borrador", draftSaved: "El borrador se ha guardado en el archivo para enviarlo más tarde.", exportPdf: "Exportar PDF", archive: "Archivo", settings: "Empresa", users: "Usuarios", userManagement: "Permisos de usuario", userManagementHint: "Asignar roles a usuarios registrados", roleAdmin: "Administrador", roleEditor: "Editor", roleViewer: "Lector",
     eyebrow: "CÁLCULO Y PRESUPUESTO", title: "Calcula daños por granizo con precisión.",
     subtitle: "Registra los daños, calcula los costes y crea un presupuesto profesional.",
     autoSaved: "Guardado localmente", customer: "Datos del cliente", customerHint: "Destinatario del presupuesto",
@@ -103,6 +103,7 @@ const rows = $("#damageRows");
 const fields = ["smallRate", "mediumRate", "largeRate", "hourlyRate", "calculationMode", "assembly", "materials", "discount", "tax", "validDays", "quoteStatus"];
 let uiLanguage = localStorage.getItem("hailquote.uiLanguage") || "de";
 let cloudClient = null;
+let currentUserRole = "viewer";
 let cloudSyncTimer = null;
 let cloudPollTimer = null;
 let applyingCloudPayload = false;
@@ -164,7 +165,40 @@ function updateAuthGate(user) {
   if (user) {
     $("#gateMessage").textContent = "";
     $("#gatePassword").value = "";
+    loadCurrentUserRole();
   }
+}
+
+async function loadCurrentUserRole() {
+  if (!cloudClient) return;
+  const { data: auth } = await cloudClient.auth.getUser();
+  if (!auth.user) return;
+  const { data } = await cloudClient.from("app_user_roles").select("role").eq("user_id", auth.user.id).maybeSingle();
+  currentUserRole = data?.role || "viewer";
+  applyRolePermissions();
+}
+
+function applyRolePermissions() {
+  const canEdit = currentUserRole === "admin" || currentUserRole === "editor";
+  const isAdmin = currentUserRole === "admin";
+  form.querySelectorAll("input, textarea, select, button").forEach(element => element.disabled = !canEdit);
+  ["newQuote", "exportPdf", "saveDraft", "openSettings"].forEach(id => { const element = $(`#${id}`); if (element) element.disabled = !canEdit; });
+  $("#openUsers").hidden = !isAdmin;
+  document.body.classList.toggle("viewer-role", !canEdit);
+}
+
+async function renderUserRoles() {
+  const { data, error } = await cloudClient.from("app_user_roles").select("user_id,email,role,updated_at").order("email");
+  if (error) return alert(error.message);
+  $("#userRoleList").innerHTML = data.map(user => `
+    <div class="archive-item">
+      <div><strong>${escapeHtml(user.email || user.user_id)}</strong><span>${escapeHtml(user.role)}</span></div>
+      <select data-user-role="${escapeHtml(user.user_id)}">
+        <option value="admin"${user.role === "admin" ? " selected" : ""}>${translations[uiLanguage].roleAdmin}</option>
+        <option value="editor"${user.role === "editor" ? " selected" : ""}>${translations[uiLanguage].roleEditor}</option>
+        <option value="viewer"${user.role === "viewer" ? " selected" : ""}>${translations[uiLanguage].roleViewer}</option>
+      </select>
+    </div>`).join("");
 }
 
 const legalTexts = {
@@ -544,6 +578,7 @@ function setLanguage(language) {
   });
   calculate();
   refreshCustomers();
+  if (!document.body.classList.contains("auth-locked")) applyRolePermissions();
 }
 
 function escapeHtml(value) {
@@ -1002,6 +1037,14 @@ $("#clearData").addEventListener("click", () => {
 $("#openCloud").addEventListener("click", () => {
   updateCloudState();
   openSimpleModal("cloudModal");
+});
+$("#openUsers").addEventListener("click", async () => { await renderUserRoles(); openSimpleModal("usersModal"); });
+document.querySelectorAll("[data-close-users]").forEach(element => element.addEventListener("click", () => closeSimpleModal("usersModal")));
+$("#userRoleList").addEventListener("change", async event => {
+  const userId = event.target.dataset.userRole;
+  if (!userId || currentUserRole !== "admin") return;
+  const { error } = await cloudClient.from("app_user_roles").update({ role: event.target.value, updated_at: new Date().toISOString() }).eq("user_id", userId);
+  if (error) alert(error.message);
 });
 document.querySelectorAll("[data-close-cloud]").forEach(el => el.addEventListener("click", () => closeSimpleModal("cloudModal")));
 $("#cloudLogin").addEventListener("click", () => cloudAuth("login"));

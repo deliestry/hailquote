@@ -62,6 +62,7 @@
       <button class="button button-secondary" id="openArchive" type="button" data-i18n="archive">Archiv</button>
       <button class="button button-secondary" id="openSettings" type="button" data-i18n="settings">Firma</button>
       <button class="button button-secondary" id="openCloud" type="button" data-i18n="cloud">Cloud</button>
+      <button class="button button-secondary" id="openUsers" type="button" data-i18n="users" hidden>Benutzer</button>
       <button class="button button-primary" id="exportPdf" type="button" data-i18n="exportPdf">Als PDF exportieren</button>
     </nav>
   </header>
@@ -379,6 +380,20 @@
           <div id="cloudTestResult" class="cloud-test-result" hidden></div>
           <p class="privacy-note" data-i18n="syncWarning">Beim Hochladen werden Kunden- und Angebotsdaten in Ihrem Supabase-Projekt gespeichert.</p>
         </div>
+      </section>
+    </div>
+  </div>
+
+  <div class="modal compact-modal app-shell" id="usersModal" hidden>
+    <div class="modal-backdrop" data-close-users></div>
+    <div class="modal-panel archive-panel" role="dialog" aria-modal="true">
+      <div class="modal-toolbar"><button class="button button-secondary" type="button" data-close-users data-i18n="close">Schließen</button></div>
+      <section class="card">
+        <div class="card-heading">
+          <span class="step">👤</span>
+          <div><h2 data-i18n="userManagement">Benutzerrechte</h2><p data-i18n="userManagementHint">Rollen für angemeldete Benutzer festlegen</p></div>
+        </div>
+        <div id="userRoleList" class="archive-list"></div>
       </section>
     </div>
   </div>
