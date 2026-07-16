@@ -1,4 +1,4 @@
-const CACHE = "hailquote-v11";
+const CACHE = "hailquote-v12";
 const ASSETS = [
   "./",
   "./index.html",
@@ -6,6 +6,7 @@ const ASSETS = [
   "./app.js",
   "./manifest.webmanifest",
   "./icon.svg",
+  "./assets/deliestry-logo.jpg",
   "./vendor/jspdf.umd.min.js"
   ,"./vendor/supabase.js"
 ];
