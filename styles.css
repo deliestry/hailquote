@@ -39,6 +39,7 @@ body { margin: 0; color: var(--ink); background: var(--bg); }
 .legal-panel h2 { margin-bottom: 18px; font-size: 25px; }
 .legal-panel h3 { margin: 22px 0 7px; font-size: 15px; }
 .legal-panel p, .legal-panel li { color: #536177; font-size: 12px; line-height: 1.7; }
+.legal-panel a { color: var(--blue); }
 .legal-panel .legal-note { padding: 12px; border-radius: 8px; background: #fff8e7; color: #70571b; }
 .legal-close { position: absolute; top: 12px; right: 14px; width: 34px; height: 34px; color: #526074; border: 0; border-radius: 50%; background: #f0f3f7; font-size: 22px; }
 button, input, select, textarea { font: inherit; }

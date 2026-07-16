@@ -136,9 +136,22 @@ function updateAuthGate(user) {
 const legalTexts = {
   imprint: `
     <h2 id="legalTitle">Impressum</h2>
-    <p><strong>Betreiber:</strong> DELIESTRY</p>
-    <p>Verantwortlich für die Anwendung „DELIESTRY Hail Calculator“.</p>
-    <p class="legal-note"><strong>Hinweis:</strong> Firmenanschrift, Rechtsform, Vertretungsberechtigte, Kontakt- und Steuerangaben müssen vor dem produktiven Geschäftsbetrieb entsprechend den tatsächlichen Unternehmensdaten ergänzt und rechtlich geprüft werden.</p>`,
+    <h3>Angaben zum Betreiber</h3>
+    <p><strong>DELIESTRY, S.L.U.</strong><br>
+    C/ Colón 4<br>
+    46950 Valencia<br>
+    Spanien</p>
+    <h3>Vertretungsberechtigte</h3>
+    <p><strong>Director:</strong> Emin Burzic<br>
+    <strong>Administradora:</strong> Amanda Colinetti</p>
+    <h3>Kontakt</h3>
+    <p>Telefon: <a href="tel:+34658116486">+34 658 116 486</a></p>
+    <h3>Steuer- und Zollangaben</h3>
+    <p><strong>VAT / NIF:</strong> B44950608<br>
+    <strong>EORI:</strong> ESB44950608</p>
+    <h3>Operativer Kontakt</h3>
+    <p>Amanda Colinetti<br>DELIESTRY, S.L.U.</p>
+    <p class="legal-note"><strong>Noch zu ergänzen:</strong> Eine geschäftliche E-Mail-Adresse sowie gegebenenfalls die Daten des Registro Mercantil. Das Impressum sollte nach Ergänzung rechtlich geprüft werden.</p>`,
   privacy: `
     <h2 id="legalTitle">Datenschutzhinweise</h2>
     <p>Die Anwendung verarbeitet Benutzer-, Kunden-, Fahrzeug- und Angebotsdaten zur Kalkulation von Hagelschäden und zur Erstellung von Angeboten.</p>
