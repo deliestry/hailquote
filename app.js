@@ -727,7 +727,7 @@ async function generateBudgetPdf(data, totals, lang, action = "save", previewWin
 
   try {
     const logo = await imageToDataUrl("assets/deliestry-logo.jpg");
-    pdf.addImage(logo, "JPEG", 16.7, 11.4, 31.6, 19.2, undefined, "FAST");
+    pdf.addImage(logo, "JPEG", 11.96, 8.52, 41.08, 24.96, undefined, "FAST");
   } catch (_) {}
 
   pdf.setTextColor(20); pdf.setFont("helvetica", "normal"); pdf.setFontSize(9);
