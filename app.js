@@ -133,6 +133,45 @@ function updateAuthGate(user) {
   }
 }
 
+const legalTexts = {
+  imprint: `
+    <h2 id="legalTitle">Impressum</h2>
+    <p><strong>Betreiber:</strong> DELIESTRY</p>
+    <p>Verantwortlich für die Anwendung „DELIESTRY Hail Calculator“.</p>
+    <p class="legal-note"><strong>Hinweis:</strong> Firmenanschrift, Rechtsform, Vertretungsberechtigte, Kontakt- und Steuerangaben müssen vor dem produktiven Geschäftsbetrieb entsprechend den tatsächlichen Unternehmensdaten ergänzt und rechtlich geprüft werden.</p>`,
+  privacy: `
+    <h2 id="legalTitle">Datenschutzhinweise</h2>
+    <p>Die Anwendung verarbeitet Benutzer-, Kunden-, Fahrzeug- und Angebotsdaten zur Kalkulation von Hagelschäden und zur Erstellung von Angeboten.</p>
+    <h3>Lokale Verarbeitung</h3>
+    <p>Entwurfs-, Firmen- und Einstellungsdaten können im lokalen Speicher des verwendeten Browsers gespeichert werden.</p>
+    <h3>Cloud-Verarbeitung</h3>
+    <p>Bei Nutzung der Synchronisierung werden Daten im zugehörigen Supabase-Projekt gespeichert. Der Zugriff ist an ein Benutzerkonto gebunden und durch Row Level Security getrennt.</p>
+    <h3>Betroffenenrechte</h3>
+    <p>Betroffene Personen können Auskunft, Berichtigung, Löschung oder Einschränkung der Verarbeitung verlangen. Operative Kontakt- und Löschprozesse sind durch den Betreiber festzulegen.</p>
+    <p class="legal-note">Diese Kurzfassung ersetzt keine auf den tatsächlichen Geschäftsbetrieb abgestimmte Datenschutzerklärung.</p>`,
+  terms: `
+    <h2 id="legalTitle">Nutzungsbedingungen</h2>
+    <p>Diese Anwendung ist eine proprietäre Geschäftsanwendung von DELIESTRY und ausschließlich für autorisierte Benutzer bestimmt.</p>
+    <ul>
+      <li>Zugangsdaten dürfen nicht an unberechtigte Dritte weitergegeben werden.</li>
+      <li>Vervielfältigung, Veränderung, Weitergabe oder kommerzielle Verwertung der Software ohne schriftliche Zustimmung ist untersagt.</li>
+      <li>Kalkulationen und Angebote sind fachlich zu prüfen. Die Anwendung ersetzt keine Fahrzeugbegutachtung vor Ort.</li>
+      <li>Benutzer sind für die Richtigkeit eingegebener Daten und die rechtmäßige Verarbeitung personenbezogener Daten verantwortlich.</li>
+    </ul>
+    <p class="legal-note">Diese Bedingungen sind eine Vorlage und sollten vor Verwendung gegenüber Kunden oder Mitarbeitern rechtlich geprüft werden.</p>`
+};
+
+function openLegal(type) {
+  $("#legalContent").innerHTML = legalTexts[type] || "";
+  $("#legalDialog").hidden = false;
+  document.body.style.overflow = "hidden";
+}
+
+function closeLegal() {
+  $("#legalDialog").hidden = true;
+  document.body.style.overflow = "";
+}
+
 async function updateCloudState() {
   const state = $("#cloudState");
   if (!state) return;
@@ -591,6 +630,8 @@ $("#cloudLogout").addEventListener("click", async () => {
 });
 $("#gateLogin").addEventListener("click", () => cloudAuth("login"));
 $("#gatePassword").addEventListener("keydown", event => { if (event.key === "Enter") cloudAuth("login"); });
+document.querySelectorAll("[data-legal]").forEach(button => button.addEventListener("click", () => openLegal(button.dataset.legal)));
+document.querySelectorAll("[data-close-legal]").forEach(element => element.addEventListener("click", closeLegal));
 $("#cloudUpload").addEventListener("click", uploadCloud);
 $("#cloudDownload").addEventListener("click", downloadCloud);
 $("#cloudTest").addEventListener("click", testCloudConnection);

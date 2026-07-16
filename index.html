@@ -22,8 +22,27 @@
         <button class="button button-primary button-full" id="gateLogin" type="button" data-i18n="login">Anmelden</button>
       </div>
       <p id="gateMessage" class="gate-message"></p>
+      <footer class="login-legal">
+        <p>© 2026 DELIESTRY. Alle Rechte vorbehalten.</p>
+        <nav aria-label="Rechtliche Hinweise">
+          <button type="button" data-legal="imprint">Impressum</button>
+          <span>·</span>
+          <button type="button" data-legal="privacy">Datenschutz</button>
+          <span>·</span>
+          <button type="button" data-legal="terms">Nutzungsbedingungen</button>
+        </nav>
+        <small>Geschützte Geschäftsanwendung. Unbefugte Nutzung, Vervielfältigung, Veränderung oder Weitergabe ist untersagt.</small>
+      </footer>
     </div>
   </section>
+
+  <div class="legal-dialog" id="legalDialog" hidden>
+    <div class="legal-backdrop" data-close-legal></div>
+    <section class="legal-panel" role="dialog" aria-modal="true" aria-labelledby="legalTitle">
+      <button class="legal-close" type="button" data-close-legal aria-label="Schließen">×</button>
+      <div id="legalContent"></div>
+    </section>
+  </div>
 
   <header class="topbar app-shell">
     <a class="brand" href="#" aria-label="HailQuote Startseite">
