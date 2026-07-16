@@ -103,11 +103,19 @@ const rows = $("#damageRows");
 const fields = ["smallRate", "mediumRate", "largeRate", "hourlyRate", "calculationMode", "assembly", "materials", "discount", "tax", "validDays", "quoteStatus"];
 let uiLanguage = localStorage.getItem("hailquote.uiLanguage") || "de";
 let cloudClient = null;
+let cloudSyncTimer = null;
+let cloudPollTimer = null;
+let applyingCloudPayload = false;
+let lastCloudUpdate = "";
+const SHARED_STATE_ID = "00000000-0000-0000-0000-000000000001";
 const SUPABASE_URL = "https://dblzvdderfcvuzrupbhj.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_VC-HeJ7bgJFmm71mKXVHMg_VhUsMn1w";
 const store = {
   get(key, fallback) { try { return JSON.parse(localStorage.getItem(`hailquote.${key}`)) ?? fallback; } catch (_) { return fallback; } },
-  set(key, value) { localStorage.setItem(`hailquote.${key}`, JSON.stringify(value)); },
+  set(key, value) {
+    localStorage.setItem(`hailquote.${key}`, JSON.stringify(value));
+    if (!applyingCloudPayload) scheduleCloudUpload();
+  },
   customers() { return this.get("customers", []); },
   company() { return this.get("company", { name: "HailQuote", address: "", email: "", phone: "", taxId: "", logo: "" }); },
   quotes() { return this.get("quotes", []); }
@@ -123,8 +131,13 @@ function initCloud() {
   cloudClient.auth.onAuthStateChange((_event, session) => {
     updateCloudState();
     updateAuthGate(session?.user || null);
+    if (session?.user) startAutomaticCloudSync();
+    else stopAutomaticCloudSync();
   });
-  cloudClient.auth.getSession().then(({ data }) => updateAuthGate(data.session?.user || null));
+  cloudClient.auth.getSession().then(({ data }) => {
+    updateAuthGate(data.session?.user || null);
+    if (data.session?.user) startAutomaticCloudSync();
+  });
   updateCloudState();
 }
 
@@ -166,7 +179,7 @@ const legalTexts = {
     <h3>Lokale Verarbeitung</h3>
     <p>Entwurfs-, Firmen- und Einstellungsdaten können im lokalen Speicher des verwendeten Browsers gespeichert werden.</p>
     <h3>Cloud-Verarbeitung</h3>
-    <p>Bei Nutzung der Synchronisierung werden Daten im zugehörigen Supabase-Projekt gespeichert. Der Zugriff ist an ein Benutzerkonto gebunden und durch Row Level Security getrennt.</p>
+    <p>Bei Nutzung der Synchronisierung werden Daten im zugehörigen Supabase-Projekt gespeichert. Alle autorisierten, angemeldeten Benutzer dieser Geschäftsanwendung können den gemeinsamen aktuellen Datenbestand einsehen und bearbeiten.</p>
     <h3>Betroffenenrechte</h3>
     <p>Betroffene Personen können Auskunft, Berichtigung, Löschung oder Einschränkung der Verarbeitung verlangen. Operative Kontakt- und Löschprozesse sind durch den Betreiber festzulegen.</p>
     <p class="legal-note">Diese Kurzfassung ersetzt keine auf den tatsächlichen Geschäftsbetrieb abgestimmte Datenschutzerklärung.</p>`,
@@ -222,25 +235,75 @@ async function uploadCloud() {
   if (!cloudClient) return updateCloudState();
   const { data: auth } = await cloudClient.auth.getUser();
   if (!auth.user) return updateCloudState();
-  const { error } = await cloudClient.from("app_state").upsert({ user_id: auth.user.id, payload: cloudPayload(), updated_at: new Date().toISOString() }, { onConflict: "user_id" });
+  const updatedAt = new Date().toISOString();
+  const { error } = await cloudClient.from("shared_app_state").upsert({ id: SHARED_STATE_ID, payload: cloudPayload(), updated_at: updatedAt, updated_by: auth.user.id }, { onConflict: "id" });
+  if (!error) lastCloudUpdate = updatedAt;
   alert(error ? error.message : translations[uiLanguage].cloudSaved);
 }
 
-async function downloadCloud() {
-  if (!cloudClient) return updateCloudState();
-  const { data: auth } = await cloudClient.auth.getUser();
-  if (!auth.user) return updateCloudState();
-  const { data, error } = await cloudClient.from("app_state").select("payload").eq("user_id", auth.user.id).maybeSingle();
-  if (error) return alert(error.message);
-  if (!data) return alert(translations[uiLanguage].cloudEmpty);
-  const payload = data.payload;
+function applyCloudPayload(payload) {
+  applyingCloudPayload = true;
   store.set("company", payload.company || {});
   store.set("customers", payload.customers || []);
   store.set("quotes", payload.quotes || []);
   store.set("sequence", +payload.sequence || 0);
   if (payload.currentQuote) applyQuoteData(payload.currentQuote);
   refreshCustomers();
-  alert(translations[uiLanguage].cloudLoaded);
+  applyingCloudPayload = false;
+}
+
+async function downloadCloud(silent = false) {
+  if (!cloudClient) return updateCloudState();
+  const { data: auth } = await cloudClient.auth.getUser();
+  if (!auth.user) return updateCloudState();
+  const { data, error } = await cloudClient.from("shared_app_state").select("payload,updated_at").eq("id", SHARED_STATE_ID).maybeSingle();
+  if (error) {
+    if (!silent) alert(error.message);
+    return null;
+  }
+  if (!data) {
+    if (!silent) alert(translations[uiLanguage].cloudEmpty);
+    return false;
+  }
+  if (data.updated_at && data.updated_at === lastCloudUpdate) return true;
+  lastCloudUpdate = data.updated_at || "";
+  applyCloudPayload(data.payload || {});
+  if (!silent) alert(translations[uiLanguage].cloudLoaded);
+  return true;
+}
+
+function scheduleCloudUpload() {
+  if (!cloudClient || applyingCloudPayload) return;
+  clearTimeout(cloudSyncTimer);
+  cloudSyncTimer = setTimeout(() => automaticCloudUpload(), 1200);
+}
+
+async function automaticCloudUpload() {
+  if (!cloudClient || applyingCloudPayload || document.body.classList.contains("auth-locked")) return;
+  const { data: auth } = await cloudClient.auth.getUser();
+  if (!auth.user) return;
+  const updatedAt = new Date().toISOString();
+  const { error } = await cloudClient.from("shared_app_state").upsert({
+    id: SHARED_STATE_ID,
+    payload: cloudPayload(),
+    updated_at: updatedAt,
+    updated_by: auth.user.id
+  }, { onConflict: "id" });
+  if (!error) lastCloudUpdate = updatedAt;
+}
+
+async function startAutomaticCloudSync() {
+  stopAutomaticCloudSync();
+  const cloudExists = await downloadCloud(true);
+  if (cloudExists === false) await automaticCloudUpload();
+  cloudPollTimer = setInterval(() => downloadCloud(true), 10000);
+}
+
+function stopAutomaticCloudSync() {
+  clearTimeout(cloudSyncTimer);
+  clearInterval(cloudPollTimer);
+  cloudSyncTimer = null;
+  cloudPollTimer = null;
 }
 
 async function testCloudConnection() {
@@ -257,26 +320,26 @@ async function testCloudConnection() {
     if (!auth.user) throw new Error(translations[uiLanguage].testNoLogin);
     steps.push(translations[uiLanguage].testAuthOk);
 
-    const { error: tableError } = await cloudClient.from("app_state").select("user_id").eq("user_id", auth.user.id).limit(1);
+    const { error: tableError } = await cloudClient.from("shared_app_state").select("id").eq("id", SHARED_STATE_ID).limit(1);
     if (tableError) throw tableError;
     steps.push(translations[uiLanguage].testTableOk);
 
     const marker = `hailquote-test-${Date.now()}`;
-    const original = await cloudClient.from("app_state").select("payload,updated_at").eq("user_id", auth.user.id).maybeSingle();
+    const original = await cloudClient.from("shared_app_state").select("payload,updated_at,updated_by").eq("id", SHARED_STATE_ID).maybeSingle();
     if (original.error) throw original.error;
-    const testPayload = { __cloud_test: marker };
-    const { error: writeError } = await cloudClient.from("app_state").upsert({ user_id: auth.user.id, payload: testPayload, updated_at: new Date().toISOString() }, { onConflict: "user_id" });
+    const testPayload = { ...(original.data?.payload || cloudPayload()), __cloud_test: marker };
+    const { error: writeError } = await cloudClient.from("shared_app_state").upsert({ id: SHARED_STATE_ID, payload: testPayload, updated_at: new Date().toISOString(), updated_by: auth.user.id }, { onConflict: "id" });
     if (writeError) throw writeError;
     steps.push(translations[uiLanguage].testWriteOk);
 
-    const { data: readData, error: readError } = await cloudClient.from("app_state").select("payload").eq("user_id", auth.user.id).single();
+    const { data: readData, error: readError } = await cloudClient.from("shared_app_state").select("payload").eq("id", SHARED_STATE_ID).single();
     if (readError) throw readError;
     if (readData?.payload?.__cloud_test !== marker) throw new Error("Testwert stimmt nicht überein.");
     steps.push(translations[uiLanguage].testReadOk);
 
     const cleanup = original.data
-      ? await cloudClient.from("app_state").update({ payload: original.data.payload, updated_at: original.data.updated_at }).eq("user_id", auth.user.id)
-      : await cloudClient.from("app_state").delete().eq("user_id", auth.user.id);
+      ? await cloudClient.from("shared_app_state").update({ payload: original.data.payload, updated_at: original.data.updated_at, updated_by: auth.user.id }).eq("id", SHARED_STATE_ID)
+      : await cloudClient.from("shared_app_state").update({ payload: cloudPayload(), updated_at: new Date().toISOString(), updated_by: auth.user.id }).eq("id", SHARED_STATE_ID);
     if (cleanup.error) throw cleanup.error;
     steps.push(translations[uiLanguage].testCleanupOk);
     result.classList.add("success");
@@ -366,6 +429,7 @@ function save() {
   data.dents = [...document.querySelectorAll(".dent-input")].map(i => i.value);
   data.rowDetails = [...rows.querySelectorAll("tr")].map(row => ({ partType: row.querySelector(".part-type").value, paint: row.querySelector(".paint-input").value, hours: row.querySelector(".hours-input").value }));
   localStorage.setItem("hailquote.quote", JSON.stringify(data));
+  scheduleCloudUpload();
 }
 
 function currentQuoteData() {
