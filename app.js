@@ -291,6 +291,11 @@ function money(value, language = uiLanguage) {
   return new Intl.NumberFormat(language === "en" ? "en-GB" : language, { style: "currency", currency: "EUR" }).format(value || 0);
 }
 
+function selectedOfferLanguage() {
+  const language = $("#offerLanguage")?.value;
+  return ["de", "en", "es"].includes(language) ? language : "de";
+}
+
 function defaultQuoteNumber() {
   const d = new Date();
   const sequence = store.get("sequence", 0) + 1;
@@ -654,7 +659,7 @@ async function generateBudgetPdf(data, totals, lang, action = "save", previewWin
 async function generatePdf() {
   if (!validateQuote()) return;
   if (!window.jspdf?.jsPDF) return window.print();
-  const lang = $("#offerLanguage").value, t = offerText[lang], data = currentQuoteData(), totals = calculate(), company = store.company();
+  const lang = selectedOfferLanguage(), t = offerText[lang], data = currentQuoteData(), totals = calculate(), company = store.company();
   return generateBudgetPdf(data, totals, lang);
   const { jsPDF } = window.jspdf;
   const pdf = new jsPDF({ unit: "mm", format: "a4" });
@@ -719,7 +724,7 @@ async function generatePdf() {
 async function previewPdf() {
   if (!validateQuote()) return;
   if (!window.jspdf?.jsPDF) return openOffer();
-  const lang = $("#offerLanguage").value;
+  const lang = selectedOfferLanguage();
   const previewWindow = window.open("about:blank", "_blank");
   return generateBudgetPdf(currentQuoteData(), calculate(), lang, "preview", previewWindow);
 }
@@ -747,7 +752,12 @@ setLanguage(uiLanguage);
 document.addEventListener("input", event => {
   if (event.target.matches("input, textarea, select")) calculate();
 });
-$("#uiLanguage").addEventListener("change", event => setLanguage(event.target.value));
+$("#uiLanguage").addEventListener("change", event => {
+  const language = event.target.value;
+  setLanguage(language);
+  $("#offerLanguage").value = language;
+  calculate();
+});
 $("#previewOffer").addEventListener("click", previewPdf);
 $("#exportPdf").addEventListener("click", generatePdf);
 $("#printOffer").addEventListener("click", generatePdf);
