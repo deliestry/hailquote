@@ -167,7 +167,7 @@ body.hourly-mode .hourly-setting { opacity: 1; }
 .archive-item strong, .archive-item span { display: block; }
 .archive-item span { margin-top: 4px; color: var(--muted); font-size: 12px; }
 .status-badge { display: inline-block !important; width: fit-content; margin: 7px 0 0 !important; padding: 3px 7px; border-radius: 99px; color: #34526f !important; background: #edf4fa; font-size: 10px !important; font-weight: 800; text-transform: uppercase; }
-.archive-actions { display: flex; gap: 7px; }
+.archive-actions { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 7px; }
 .archive-actions .button { padding: 8px 10px; font-size: 11px; }
 
 @media (max-width: 980px) {

@@ -19,7 +19,7 @@ const translations = {
     preview: "Angebot ansehen", privacy: "Ihre Daten verlassen dieses Gerät nicht.", close: "Schließen",
     printPdf: "Drucken / PDF", resetConfirm: "Möchten Sie wirklich ein neues Angebot beginnen?", selectCustomer: "Gespeicherten Kunden auswählen", newCustomer: "Neuer Kunde", saveCustomer: "Kunde speichern",
     companyProfile: "Firmenprofil", companyHint: "Erscheint auf jedem Angebot und PDF", companyName: "Firmenname", taxId: "Steuernummer / USt-ID", logo: "Firmenlogo", saveCompany: "Firmenprofil speichern",
-    quoteArchive: "Angebotsarchiv", archiveHint: "Gespeicherte und exportierte Angebote", emptyArchive: "Noch keine Angebote archiviert.", loadQuote: "Öffnen", deleteQuote: "Löschen", savedNotice: "Gespeichert",
+    quoteArchive: "Angebotsarchiv", archiveHint: "Gespeicherte und exportierte Angebote", emptyArchive: "Noch keine Angebote archiviert.", loadQuote: "Bearbeiten", reviewQuote: "Prüfen", sendQuote: "An Kunden senden", deleteQuote: "Löschen", missingCustomerEmail: "Für dieses Angebot ist keine Kunden-E-Mail gespeichert.", sendSubject: "Ihr Kostenvoranschlag", sendGreeting: "Guten Tag", sendBody: "über den folgenden sicheren Link können Sie Ihren Kostenvoranschlag öffnen:", sendExpiry: "Der Link ist sieben Tage gültig.", savedNotice: "Gespeichert",
     quoteStatus: "Angebotsstatus", statusDraft: "Entwurf", statusSent: "Versendet", statusAccepted: "Angenommen", statusRejected: "Abgelehnt",
     vehicleColor: "Farbe", calculationModel: "Kalkulationsmodell", dentModel: "Preis je Delle", hourlyModel: "Arbeitszeit × Stundensatz", hourlyRate: "Stundenverrechnungssatz", partType: "Bauteiltyp", paint: "Lack", time: "Zeit", yes: "Ja", no: "Nein",
     dataManagement: "Datensicherung", exportBackup: "Backup exportieren", importBackup: "Backup importieren", clearData: "Lokale Daten löschen",
@@ -49,7 +49,7 @@ const translations = {
     preview: "Preview quote", privacy: "Your data never leaves this device.", close: "Close",
     printPdf: "Print / PDF", resetConfirm: "Do you really want to start a new quote?", selectCustomer: "Select saved customer", newCustomer: "New customer", saveCustomer: "Save customer",
     companyProfile: "Company profile", companyHint: "Appears on every quote and PDF", companyName: "Company name", taxId: "Tax number / VAT ID", logo: "Company logo", saveCompany: "Save company profile",
-    quoteArchive: "Quote archive", archiveHint: "Saved and exported quotations", emptyArchive: "No archived quotes yet.", loadQuote: "Open", deleteQuote: "Delete", savedNotice: "Saved",
+    quoteArchive: "Quote archive", archiveHint: "Saved and exported quotations", emptyArchive: "No archived quotes yet.", loadQuote: "Edit", reviewQuote: "Review", sendQuote: "Send to customer", deleteQuote: "Delete", missingCustomerEmail: "No customer email is saved for this quote.", sendSubject: "Your quotation", sendGreeting: "Hello", sendBody: "You can open your quotation using the following secure link:", sendExpiry: "The link is valid for seven days.", savedNotice: "Saved",
     quoteStatus: "Quote status", statusDraft: "Draft", statusSent: "Sent", statusAccepted: "Accepted", statusRejected: "Rejected",
     vehicleColor: "Colour", calculationModel: "Calculation model", dentModel: "Price per dent", hourlyModel: "Labour time × hourly rate", hourlyRate: "Hourly rate", partType: "Part type", paint: "Paint", time: "Time", yes: "Yes", no: "No",
     dataManagement: "Data backup", exportBackup: "Export backup", importBackup: "Import backup", clearData: "Delete local data",
@@ -79,7 +79,7 @@ const translations = {
     preview: "Ver presupuesto", privacy: "Tus datos no salen de este dispositivo.", close: "Cerrar",
     printPdf: "Imprimir / PDF", resetConfirm: "¿Deseas empezar un presupuesto nuevo?", selectCustomer: "Seleccionar cliente guardado", newCustomer: "Cliente nuevo", saveCustomer: "Guardar cliente",
     companyProfile: "Perfil de empresa", companyHint: "Aparece en cada presupuesto y PDF", companyName: "Nombre de empresa", taxId: "NIF / IVA", logo: "Logotipo", saveCompany: "Guardar perfil",
-    quoteArchive: "Archivo de presupuestos", archiveHint: "Presupuestos guardados y exportados", emptyArchive: "Todavía no hay presupuestos archivados.", loadQuote: "Abrir", deleteQuote: "Eliminar", savedNotice: "Guardado",
+    quoteArchive: "Archivo de presupuestos", archiveHint: "Presupuestos guardados y exportados", emptyArchive: "Todavía no hay presupuestos archivados.", loadQuote: "Editar", reviewQuote: "Revisar", sendQuote: "Enviar al cliente", deleteQuote: "Eliminar", missingCustomerEmail: "Este presupuesto no tiene un correo electrónico del cliente guardado.", sendSubject: "Su presupuesto", sendGreeting: "Hola", sendBody: "Puede abrir su presupuesto mediante el siguiente enlace seguro:", sendExpiry: "El enlace es válido durante siete días.", savedNotice: "Guardado",
     quoteStatus: "Estado", statusDraft: "Borrador", statusSent: "Enviado", statusAccepted: "Aceptado", statusRejected: "Rechazado",
     vehicleColor: "Color", calculationModel: "Modelo de cálculo", dentModel: "Precio por abolladura", hourlyModel: "Tiempo × tarifa por hora", hourlyRate: "Tarifa por hora", partType: "Tipo de pieza", paint: "Pintura", time: "Tiempo", yes: "Sí", no: "No",
     dataManagement: "Copia de seguridad", exportBackup: "Exportar copia", importBackup: "Importar copia", clearData: "Eliminar datos locales",
@@ -601,7 +601,12 @@ function renderArchive() {
   list.innerHTML = quotes.length ? quotes.map(q => `
     <div class="archive-item">
       <div><strong>${escapeHtml(q.quoteNumber)} · ${escapeHtml(q.customerName || "—")}</strong><span>${escapeHtml(q.brandModel || "—")} · ${money(q.gross, q.offerLanguage)} · ${new Date(q.savedAt).toLocaleDateString()}</span><span class="status-badge">${translations[uiLanguage][`status${(q.status || "draft")[0].toUpperCase()}${(q.status || "draft").slice(1)}`]}</span></div>
-      <div class="archive-actions"><button class="button button-secondary" data-load-quote="${escapeHtml(q.id)}">${translations[uiLanguage].loadQuote}</button><button class="button button-secondary" data-delete-quote="${escapeHtml(q.id)}">${translations[uiLanguage].deleteQuote}</button></div>
+      <div class="archive-actions">
+        <button class="button button-secondary" data-load-quote="${escapeHtml(q.id)}">${translations[uiLanguage].loadQuote}</button>
+        <button class="button button-secondary" data-review-quote="${escapeHtml(q.id)}">${translations[uiLanguage].reviewQuote}</button>
+        <button class="button button-primary" data-send-quote="${escapeHtml(q.id)}">${translations[uiLanguage].sendQuote}</button>
+        <button class="button button-secondary" data-delete-quote="${escapeHtml(q.id)}">${translations[uiLanguage].deleteQuote}</button>
+      </div>
     </div>`).join("") : `<div class="archive-empty">${translations[uiLanguage].emptyArchive}</div>`;
 }
 
@@ -631,9 +636,9 @@ async function imageToDataUrl(url) {
 }
 
 async function uploadOfferPdf(pdf, data, lang) {
-  if (!cloudClient) return;
+  if (!cloudClient) return null;
   const { data: auth } = await cloudClient.auth.getUser();
-  if (!auth.user) return;
+  if (!auth.user) return null;
   const baseName = String(data.quoteNumber || `Angebot-${Date.now()}`)
     .replace(/[^a-zA-Z0-9._-]+/g, "-")
     .replace(/^-+|-+$/g, "");
@@ -644,6 +649,7 @@ async function uploadOfferPdf(pdf, data, lang) {
     upsert: true
   });
   if (error) alert(`${translations[uiLanguage].cloudPdfError}\n${error.message}`);
+  return error ? null : path;
 }
 
 async function generateBudgetPdf(data, totals, lang, action = "save", previewWindow = null) {
@@ -741,11 +747,37 @@ async function generateBudgetPdf(data, totals, lang, action = "save", previewWin
     const pdfUrl = pdf.output("bloburl");
     if (previewWindow) previewWindow.location.href = pdfUrl;
     else window.open(pdfUrl, "_blank");
+  } else if (action === "send") {
+    const path = await uploadOfferPdf(pdf, data, lang);
+    if (!path) return;
+    const { data: signed, error } = await cloudClient.storage.from("angebote").createSignedUrl(path, 60 * 60 * 24 * 7);
+    if (error || !signed?.signedUrl) {
+      alert(`${translations[uiLanguage].cloudPdfError}\n${error?.message || ""}`);
+      return;
+    }
+    const copy = translations[lang];
+    const subject = `${copy.sendSubject} ${data.quoteNumber}`;
+    const body = `${copy.sendGreeting} ${data.customerName || ""},\n\n${copy.sendBody}\n${signed.signedUrl}\n\n${copy.sendExpiry}\n\nDELIESTRY`;
+    window.location.href = `mailto:${encodeURIComponent(data.email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   } else {
     pdf.save(`${safe(data.quoteNumber || "DELIESTRY-Budget")}.pdf`);
     archiveCurrentQuote();
     await uploadOfferPdf(pdf, data, lang);
   }
+}
+
+async function reviewArchivedQuote(quote) {
+  applyQuoteData(quote);
+  const previewWindow = window.open("about:blank", "_blank");
+  await generateBudgetPdf(currentQuoteData(), calculate(), quote.offerLanguage || "de", "preview", previewWindow);
+}
+
+async function sendArchivedQuote(quote) {
+  if (!quote.email) return alert(translations[uiLanguage].missingCustomerEmail);
+  applyQuoteData(quote);
+  $("#quoteStatus").value = "sent";
+  archiveCurrentQuote();
+  await generateBudgetPdf(currentQuoteData(), calculate(), quote.offerLanguage || "de", "send");
 }
 
 async function generatePdf(language) {
@@ -878,8 +910,13 @@ $("#companyLogo").addEventListener("change", event => {
   reader.readAsDataURL(file);
 });
 $("#archiveList").addEventListener("click", event => {
-  const loadId = event.target.dataset.loadQuote, deleteId = event.target.dataset.deleteQuote;
+  const loadId = event.target.dataset.loadQuote;
+  const reviewId = event.target.dataset.reviewQuote;
+  const sendId = event.target.dataset.sendQuote;
+  const deleteId = event.target.dataset.deleteQuote;
   if (loadId) { const quote = store.quotes().find(q => q.id === loadId); if (quote) applyQuoteData(quote); closeSimpleModal("archiveModal"); }
+  if (reviewId) { const quote = store.quotes().find(q => q.id === reviewId); if (quote) reviewArchivedQuote(quote); }
+  if (sendId) { const quote = store.quotes().find(q => q.id === sendId); if (quote) sendArchivedQuote(quote); }
   if (deleteId) { store.set("quotes", store.quotes().filter(q => q.id !== deleteId)); renderArchive(); }
 });
 $("#exportBackup").addEventListener("click", () => {
