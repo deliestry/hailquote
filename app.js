@@ -755,7 +755,7 @@ async function generateBudgetPdf(data, totals, lang, action = "save", previewWin
       alert(`${translations[uiLanguage].cloudPdfError}\n${error?.message || ""}`);
       return;
     }
-    const { error: sendError } = await cloudClient.functions.invoke("send-offer", {
+    const { error: sendError } = await cloudClient.functions.invoke("super-endpoint", {
       body: {
         to: data.email,
         customerName: data.customerName,
