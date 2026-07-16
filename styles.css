@@ -22,7 +22,7 @@ body { margin: 0; color: var(--ink); background: var(--bg); }
 .auth-card { width: min(440px, 100%); padding: 34px; border-radius: 18px; background: white; box-shadow: 0 25px 80px rgba(0,0,0,.3); }
 .auth-brand { display: flex; align-items: center; gap: 12px; margin-bottom: 32px; color: var(--navy); font-size: 21px; }
 .auth-card h1 { font-size: 30px; }
-.deliestry-logo-image { display: block; width: min(100%, 310px); max-height: 112px; margin: 2px auto 12px; object-fit: contain; }
+.deliestry-logo-image { display: block; width: min(100%, 330px); height: 112px; margin: 0 auto 13px; object-fit: contain; object-position: center; }
 .auth-copy { margin: 10px 0 24px; color: var(--muted); font-size: 13px; line-height: 1.6; }
 .auth-fields { display: grid; gap: 15px; }
 .auth-card .button-full { margin-top: 0; }
@@ -167,6 +167,7 @@ textarea { resize: vertical; }
   .offer-sheet { padding: 30px 22px; }
   .offer-addresses { grid-template-columns: 1fr; gap: 20px; }
   .inline-control, .three-actions, .archive-item { grid-template-columns: 1fr; }
+  .deliestry-logo-image { width: min(100%, 285px); height: 96px; }
 }
 
 @media print {
