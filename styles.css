@@ -16,6 +16,18 @@
 
 * { box-sizing: border-box; }
 body { margin: 0; color: var(--ink); background: var(--bg); }
+.auth-locked .app-shell { display: none !important; }
+.auth-gate { display: none; min-height: 100vh; padding: 28px; place-items: center; background: radial-gradient(circle at 20% 10%, #284c78 0, #13243a 42%, #0d1929 100%); }
+.auth-locked .auth-gate { display: grid; }
+.auth-card { width: min(440px, 100%); padding: 34px; border-radius: 18px; background: white; box-shadow: 0 25px 80px rgba(0,0,0,.3); }
+.auth-brand { display: flex; align-items: center; gap: 12px; margin-bottom: 32px; color: var(--navy); font-size: 21px; }
+.auth-card h1 { font-size: 30px; }
+.auth-copy { margin: 10px 0 24px; color: var(--muted); font-size: 13px; line-height: 1.6; }
+.auth-fields, .auth-config { display: grid; gap: 15px; }
+.auth-config { padding-bottom: 20px; margin-bottom: 20px; border-bottom: 1px solid var(--line); }
+.auth-config[hidden] { display: none; }
+.auth-card .button-full { margin-top: 0; }
+.gate-message { min-height: 18px; margin: 14px 0 0; color: #a12d2d; font-size: 12px; text-align: center; }
 button, input, select, textarea { font: inherit; }
 button { cursor: pointer; }
 

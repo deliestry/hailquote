@@ -10,8 +10,28 @@
   <link rel="icon" href="icon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="styles.css">
 </head>
-<body>
-  <header class="topbar">
+<body class="auth-locked">
+  <section class="auth-gate" id="authGate">
+    <div class="auth-card">
+      <div class="auth-brand"><span class="brand-mark">HQ</span><strong>HailQuote</strong></div>
+      <p class="eyebrow" data-i18n="protectedAccess">GESCHÜTZTER ZUGANG</p>
+      <h1 data-i18n="loginTitle">Bei HailQuote anmelden</h1>
+      <p class="auth-copy" data-i18n="loginHint">Die Anwendung und Kundendaten sind nur für autorisierte Benutzer zugänglich.</p>
+      <div id="gateConfig" class="auth-config">
+        <label class="field"><span>Supabase Project URL</span><input id="gateSupabaseUrl" type="url" placeholder="https://xxxx.supabase.co"></label>
+        <label class="field"><span>Supabase Publishable / anon key</span><input id="gateSupabaseKey" type="password"></label>
+        <button class="button button-secondary button-full" id="gateSaveConfig" type="button" data-i18n="saveCloudConfig">Cloud-Konfiguration speichern</button>
+      </div>
+      <div class="auth-fields">
+        <label class="field"><span data-i18n="email">E-Mail</span><input id="gateEmail" type="email" autocomplete="username"></label>
+        <label class="field"><span data-i18n="password">Passwort</span><input id="gatePassword" type="password" autocomplete="current-password"></label>
+        <button class="button button-primary button-full" id="gateLogin" type="button" data-i18n="login">Anmelden</button>
+      </div>
+      <p id="gateMessage" class="gate-message"></p>
+    </div>
+  </section>
+
+  <header class="topbar app-shell">
     <a class="brand" href="#" aria-label="HailQuote Startseite">
       <span class="brand-mark">HQ</span>
       <span>HailQuote</span>
@@ -33,7 +53,7 @@
     </nav>
   </header>
 
-  <main class="workspace">
+  <main class="workspace app-shell">
     <section class="intro">
       <div>
         <p class="eyebrow" data-i18n="eyebrow">KALKULATION & ANGEBOT</p>
@@ -233,7 +253,7 @@
     </div>
   </main>
 
-  <div class="modal" id="offerModal" hidden>
+  <div class="modal app-shell" id="offerModal" hidden>
     <div class="modal-backdrop" data-close-modal></div>
     <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="offerTitle">
       <div class="modal-toolbar">
@@ -244,7 +264,7 @@
     </div>
   </div>
 
-  <div class="modal compact-modal" id="settingsModal" hidden>
+  <div class="modal compact-modal app-shell" id="settingsModal" hidden>
     <div class="modal-backdrop" data-close-settings></div>
     <div class="modal-panel settings-panel" role="dialog" aria-modal="true">
       <div class="modal-toolbar">
@@ -279,7 +299,7 @@
     </div>
   </div>
 
-  <div class="modal compact-modal" id="archiveModal" hidden>
+  <div class="modal compact-modal app-shell" id="archiveModal" hidden>
     <div class="modal-backdrop" data-close-archive></div>
     <div class="modal-panel archive-panel" role="dialog" aria-modal="true">
       <div class="modal-toolbar">
@@ -295,7 +315,7 @@
     </div>
   </div>
 
-  <div class="modal compact-modal" id="cloudModal" hidden>
+  <div class="modal compact-modal app-shell" id="cloudModal" hidden>
     <div class="modal-backdrop" data-close-cloud></div>
     <div class="modal-panel settings-panel" role="dialog" aria-modal="true">
       <div class="modal-toolbar"><button class="button button-secondary" type="button" data-close-cloud data-i18n="close">Schließen</button></div>
@@ -317,7 +337,6 @@
             <label class="field"><span data-i18n="email">E-Mail</span><input id="cloudEmail" type="email"></label>
             <label class="field"><span data-i18n="password">Passwort</span><input id="cloudPassword" type="password"></label>
             <button class="button button-primary" id="cloudLogin" type="button" data-i18n="login">Anmelden</button>
-            <button class="button button-secondary" id="cloudSignup" type="button" data-i18n="signup">Konto erstellen</button>
           </div>
           <div class="cloud-actions">
             <button class="button button-secondary" id="cloudTest" type="button" data-i18n="testCloud">Cloud-Verbindung testen</button>

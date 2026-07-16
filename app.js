@@ -25,6 +25,7 @@ const translations = {
     invalidQuote: "Bitte mindestens Kundenname, Fahrzeug und Angebotsnummer ausfüllen.", importSuccess: "Backup wurde erfolgreich importiert.", importError: "Die Backup-Datei ist ungültig.", clearConfirm: "Alle lokalen Kunden, Angebote und Firmendaten unwiderruflich löschen?",
     cloud: "Cloud", cloudSync: "Cloud-Synchronisierung", cloudHint: "Optional mit einem eigenen Supabase-Projekt", saveCloudConfig: "Cloud-Konfiguration speichern", password: "Passwort", login: "Anmelden", signup: "Konto erstellen", logout: "Abmelden", uploadCloud: "Lokale Daten hochladen", downloadCloud: "Cloud-Daten laden", syncWarning: "Beim Hochladen werden Kunden- und Angebotsdaten in Ihrem Supabase-Projekt gespeichert.", cloudOffline: "Cloud ist noch nicht konfiguriert.", cloudSignedOut: "Nicht angemeldet", cloudSignedIn: "Angemeldet als", cloudSaved: "Cloud-Daten wurden gespeichert.", cloudLoaded: "Cloud-Daten wurden geladen.", cloudEmpty: "Für dieses Konto sind noch keine Cloud-Daten vorhanden.",
     testCloud: "Cloud-Verbindung testen", testRunning: "Cloud-Test läuft …", testConfigOk: "✓ Konfiguration erkannt", testAuthOk: "✓ Anmeldung aktiv", testTableOk: "✓ Tabelle app_state erreichbar", testWriteOk: "✓ Testdaten geschrieben", testReadOk: "✓ Testdaten gelesen", testCleanupOk: "✓ Testdaten entfernt", testSuccess: "Cloud-Login und Synchronisierung funktionieren.", testNoLogin: "Keine aktive Anmeldung. Bitte zuerst anmelden.", testFailed: "Cloud-Test fehlgeschlagen:",
+    protectedAccess: "GESCHÜTZTER ZUGANG", loginTitle: "Bei HailQuote anmelden", loginHint: "Die Anwendung und Kundendaten sind nur für autorisierte Benutzer zugänglich.",
     parts: ["Motorhaube", "Dach", "Kofferraumdeckel", "Kotflügel vorne links", "Kotflügel vorne rechts", "Tür vorne links", "Tür vorne rechts", "Tür hinten links", "Tür hinten rechts", "Seitenteil links", "Seitenteil rechts"]
   },
   en: {
@@ -53,6 +54,7 @@ const translations = {
     invalidQuote: "Please enter at least customer name, vehicle and quote number.", importSuccess: "Backup imported successfully.", importError: "The backup file is invalid.", clearConfirm: "Permanently delete all local customers, quotes and company data?",
     cloud: "Cloud", cloudSync: "Cloud sync", cloudHint: "Optional with your own Supabase project", saveCloudConfig: "Save cloud configuration", password: "Password", login: "Sign in", signup: "Create account", logout: "Sign out", uploadCloud: "Upload local data", downloadCloud: "Load cloud data", syncWarning: "Uploading stores customer and quote data in your Supabase project.", cloudOffline: "Cloud is not configured yet.", cloudSignedOut: "Not signed in", cloudSignedIn: "Signed in as", cloudSaved: "Cloud data saved.", cloudLoaded: "Cloud data loaded.", cloudEmpty: "No cloud data exists for this account yet.",
     testCloud: "Test cloud connection", testRunning: "Cloud test running …", testConfigOk: "✓ Configuration detected", testAuthOk: "✓ Login active", testTableOk: "✓ app_state table reachable", testWriteOk: "✓ Test data written", testReadOk: "✓ Test data read", testCleanupOk: "✓ Test data removed", testSuccess: "Cloud login and synchronization work.", testNoLogin: "No active login. Please sign in first.", testFailed: "Cloud test failed:",
+    protectedAccess: "PROTECTED ACCESS", loginTitle: "Sign in to HailQuote", loginHint: "The application and customer data are accessible to authorized users only.",
     parts: ["Hood", "Roof", "Trunk lid", "Front left fender", "Front right fender", "Front left door", "Front right door", "Rear left door", "Rear right door", "Left quarter panel", "Right quarter panel"]
   },
   es: {
@@ -81,6 +83,7 @@ const translations = {
     invalidQuote: "Introduce al menos el cliente, el vehículo y el número de presupuesto.", importSuccess: "La copia se ha importado correctamente.", importError: "El archivo de copia no es válido.", clearConfirm: "¿Eliminar permanentemente todos los clientes, presupuestos y datos de empresa?",
     cloud: "Nube", cloudSync: "Sincronización en la nube", cloudHint: "Opcional con tu propio proyecto Supabase", saveCloudConfig: "Guardar configuración", password: "Contraseña", login: "Iniciar sesión", signup: "Crear cuenta", logout: "Cerrar sesión", uploadCloud: "Subir datos locales", downloadCloud: "Cargar datos de la nube", syncWarning: "Al subir, los datos de clientes y presupuestos se guardan en tu proyecto Supabase.", cloudOffline: "La nube aún no está configurada.", cloudSignedOut: "Sesión no iniciada", cloudSignedIn: "Sesión iniciada como", cloudSaved: "Datos guardados en la nube.", cloudLoaded: "Datos de la nube cargados.", cloudEmpty: "Todavía no hay datos para esta cuenta.",
     testCloud: "Probar conexión", testRunning: "Prueba de nube en curso …", testConfigOk: "✓ Configuración detectada", testAuthOk: "✓ Sesión activa", testTableOk: "✓ Tabla app_state accesible", testWriteOk: "✓ Datos de prueba escritos", testReadOk: "✓ Datos de prueba leídos", testCleanupOk: "✓ Datos de prueba eliminados", testSuccess: "El acceso y la sincronización funcionan.", testNoLogin: "No hay una sesión activa. Inicia sesión primero.", testFailed: "La prueba ha fallado:",
+    protectedAccess: "ACCESO PROTEGIDO", loginTitle: "Iniciar sesión en HailQuote", loginHint: "La aplicación y los datos de clientes solo son accesibles para usuarios autorizados.",
     parts: ["Capó", "Techo", "Portón del maletero", "Aleta delantera izquierda", "Aleta delantera derecha", "Puerta delantera izquierda", "Puerta delantera derecha", "Puerta trasera izquierda", "Puerta trasera derecha", "Panel lateral izquierdo", "Panel lateral derecho"]
   }
 };
@@ -111,10 +114,23 @@ function cloudPayload() {
 
 function initCloud() {
   const config = store.get("cloudConfig", null);
-  if (!config?.url || !config?.key || !window.supabase?.createClient) { cloudClient = null; updateCloudState(); return; }
+  $("#gateConfig").hidden = Boolean(config?.url && config?.key);
+  if (!config?.url || !config?.key || !window.supabase?.createClient) { cloudClient = null; updateCloudState(); updateAuthGate(null); return; }
   cloudClient = window.supabase.createClient(config.url, config.key);
-  cloudClient.auth.onAuthStateChange(() => updateCloudState());
+  cloudClient.auth.onAuthStateChange((_event, session) => {
+    updateCloudState();
+    updateAuthGate(session?.user || null);
+  });
+  cloudClient.auth.getSession().then(({ data }) => updateAuthGate(data.session?.user || null));
   updateCloudState();
+}
+
+function updateAuthGate(user) {
+  document.body.classList.toggle("auth-locked", !user);
+  if (user) {
+    $("#gateMessage").textContent = "";
+    $("#gatePassword").value = "";
+  }
 }
 
 async function updateCloudState() {
@@ -127,10 +143,19 @@ async function updateCloudState() {
 
 async function cloudAuth(mode) {
   if (!cloudClient) return updateCloudState();
-  const credentials = { email: $("#cloudEmail").value, password: $("#cloudPassword").value };
-  const result = mode === "signup" ? await cloudClient.auth.signUp(credentials) : await cloudClient.auth.signInWithPassword(credentials);
-  if (result.error) alert(result.error.message);
-  else updateCloudState();
+  const gateActive = document.body.classList.contains("auth-locked");
+  const credentials = {
+    email: gateActive ? $("#gateEmail").value : $("#cloudEmail").value,
+    password: gateActive ? $("#gatePassword").value : $("#cloudPassword").value
+  };
+  const result = await cloudClient.auth.signInWithPassword(credentials);
+  if (result.error) {
+    if (gateActive) $("#gateMessage").textContent = result.error.message;
+    else alert(result.error.message);
+  } else {
+    updateAuthGate(result.data.user);
+    updateCloudState();
+  }
 }
 
 async function uploadCloud() {
@@ -565,8 +590,22 @@ $("#saveCloudConfig").addEventListener("click", () => {
   initCloud();
 });
 $("#cloudLogin").addEventListener("click", () => cloudAuth("login"));
-$("#cloudSignup").addEventListener("click", () => cloudAuth("signup"));
-$("#cloudLogout").addEventListener("click", async () => { if (cloudClient) await cloudClient.auth.signOut(); updateCloudState(); });
+$("#cloudLogout").addEventListener("click", async () => {
+  if (cloudClient) await cloudClient.auth.signOut();
+  closeSimpleModal("cloudModal");
+  updateAuthGate(null);
+  updateCloudState();
+});
+$("#gateSaveConfig").addEventListener("click", () => {
+  const url = $("#gateSupabaseUrl").value.trim();
+  const key = $("#gateSupabaseKey").value.trim();
+  if (!url || !key) return;
+  store.set("cloudConfig", { url, key });
+  $("#gateMessage").textContent = "";
+  initCloud();
+});
+$("#gateLogin").addEventListener("click", () => cloudAuth("login"));
+$("#gatePassword").addEventListener("keydown", event => { if (event.key === "Enter") cloudAuth("login"); });
 $("#cloudUpload").addEventListener("click", uploadCloud);
 $("#cloudDownload").addEventListener("click", downloadCloud);
 $("#cloudTest").addEventListener("click", testCloudConnection);
