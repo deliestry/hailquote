@@ -114,9 +114,27 @@ const store = {
   get(key, fallback) { try { return JSON.parse(localStorage.getItem(`hailquote.${key}`)) ?? fallback; } catch (_) { return fallback; } },
   set(key, value) {
     localStorage.setItem(`hailquote.${key}`, JSON.stringify(value));
+    if (key === "customers" && Array.isArray(value) && value.length) {
+      localStorage.setItem("hailquote.customersBackup", JSON.stringify({
+        savedAt: new Date().toISOString(),
+        customers: value
+      }));
+    }
     if (!applyingCloudPayload) scheduleCloudUpload();
   },
-  customers() { return this.get("customers", []); },
+  customers() {
+    const customers = this.get("customers", []);
+    if (customers.length) {
+      if (!localStorage.getItem("hailquote.customersBackup")) {
+        localStorage.setItem("hailquote.customersBackup", JSON.stringify({
+          savedAt: new Date().toISOString(),
+          customers
+        }));
+      }
+      return customers;
+    }
+    return this.get("customersBackup", {}).customers || [];
+  },
   company() { return this.get("company", { name: "HailQuote", address: "", email: "", phone: "", taxId: "", logo: "" }); },
   quotes() { return this.get("quotes", []); }
 };
@@ -243,8 +261,15 @@ async function uploadCloud() {
 
 function applyCloudPayload(payload) {
   applyingCloudPayload = true;
+  const localCustomers = store.customers();
+  const cloudCustomers = Array.isArray(payload.customers) ? payload.customers : [];
+  const mergedCustomers = new Map();
+  [...localCustomers, ...cloudCustomers].forEach(customer => {
+    const key = customer.id || customer.email?.toLowerCase() || customer.customerName;
+    if (key) mergedCustomers.set(key, { ...(mergedCustomers.get(key) || {}), ...customer });
+  });
   store.set("company", payload.company || {});
-  store.set("customers", payload.customers || []);
+  store.set("customers", [...mergedCustomers.values()]);
   store.set("quotes", payload.quotes || []);
   store.set("sequence", +payload.sequence || 0);
   if (payload.currentQuote) applyQuoteData(payload.currentQuote);
