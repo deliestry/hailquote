@@ -182,7 +182,8 @@ function applyRolePermissions() {
   const canEdit = currentUserRole === "admin" || currentUserRole === "editor";
   const isAdmin = currentUserRole === "admin";
   form.querySelectorAll("input, textarea, select, button").forEach(element => element.disabled = !canEdit);
-  ["newQuote", "exportPdf", "saveDraft", "openSettings"].forEach(id => { const element = $(`#${id}`); if (element) element.disabled = !canEdit; });
+  ["newQuote", "exportPdf", "saveDraft"].forEach(id => { const element = $(`#${id}`); if (element) element.disabled = !canEdit; });
+  $("#openSettings").hidden = !isAdmin;
   $("#openUsers").hidden = !isAdmin;
   document.body.classList.toggle("viewer-role", !canEdit);
 }
