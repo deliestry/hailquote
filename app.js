@@ -150,9 +150,13 @@ const legalTexts = {
     <h3>Steuer- und Zollangaben</h3>
     <p><strong>VAT / NIF:</strong> B44950608<br>
     <strong>EORI:</strong> ESB44950608</p>
+    <h3>Registerangaben</h3>
+    <p><strong>Registerprovinz:</strong> Valencia<br>
+    <strong>Veröffentlichungsdatum:</strong> 26.04.2023<br>
+    <strong>Ankündigungsnummer:</strong> 198189</p>
     <h3>Operativer Kontakt</h3>
     <p>Amanda Colinetti<br>DELIESTRY, S.L.U.</p>
-    <p class="legal-note"><strong>Noch zu ergänzen:</strong> Gegebenenfalls die Eintragungsdaten des Registro Mercantil. Das Impressum sollte rechtlich geprüft werden.</p>`,
+    <p class="legal-note">Die Angaben wurden nach den vom Betreiber bereitgestellten Unternehmens- und Registerdaten erstellt. Eine abschließende rechtliche Prüfung wird empfohlen.</p>`,
   privacy: `
     <h2 id="legalTitle">Datenschutzhinweise</h2>
     <p>Die Anwendung verarbeitet Benutzer-, Kunden-, Fahrzeug- und Angebotsdaten zur Kalkulation von Hagelschäden und zur Erstellung von Angeboten.</p>
