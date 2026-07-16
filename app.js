@@ -24,7 +24,7 @@ const translations = {
     vehicleColor: "Farbe", calculationModel: "Kalkulationsmodell", dentModel: "Preis je Delle", hourlyModel: "Arbeitszeit × Stundensatz", hourlyRate: "Stundenverrechnungssatz", partType: "Bauteiltyp", paint: "Lack", time: "Zeit", yes: "Ja", no: "Nein",
     dataManagement: "Datensicherung", exportBackup: "Backup exportieren", importBackup: "Backup importieren", clearData: "Lokale Daten löschen",
     invalidQuote: "Bitte mindestens Kundenname, Fahrzeug und Angebotsnummer ausfüllen.", importSuccess: "Backup wurde erfolgreich importiert.", importError: "Die Backup-Datei ist ungültig.", clearConfirm: "Alle lokalen Kunden, Angebote und Firmendaten unwiderruflich löschen?",
-    cloud: "Cloud", cloudSync: "Cloud-Synchronisierung", cloudHint: "Gesicherte Synchronisierung mit Supabase", password: "Passwort", login: "Anmelden", logout: "Abmelden", uploadCloud: "Lokale Daten hochladen", downloadCloud: "Cloud-Daten laden", syncWarning: "Beim Hochladen werden Kunden- und Angebotsdaten in Ihrem Supabase-Projekt gespeichert.", cloudOffline: "Cloud-Verbindung ist nicht verfügbar.", cloudSignedOut: "Nicht angemeldet", cloudSignedIn: "Angemeldet als", cloudSaved: "Cloud-Daten wurden gespeichert.", cloudLoaded: "Cloud-Daten wurden geladen.", cloudEmpty: "Für dieses Konto sind noch keine Cloud-Daten vorhanden.",
+    cloud: "Cloud", cloudSync: "Cloud-Synchronisierung", cloudHint: "Gesicherte Synchronisierung mit Supabase", password: "Passwort", login: "Anmelden", logout: "Abmelden", uploadCloud: "Lokale Daten hochladen", downloadCloud: "Cloud-Daten laden", syncWarning: "Beim Hochladen werden Kunden- und Angebotsdaten in Ihrem Supabase-Projekt gespeichert.", cloudOffline: "Cloud-Verbindung ist nicht verfügbar.", cloudSignedOut: "Nicht angemeldet", cloudSignedIn: "Angemeldet als", cloudSaved: "Cloud-Daten wurden gespeichert.", cloudLoaded: "Cloud-Daten wurden geladen.", cloudEmpty: "Für dieses Konto sind noch keine Cloud-Daten vorhanden.", cloudPdfError: "Die PDF wurde lokal gespeichert, konnte aber nicht in den Cloud-Ordner Angebote hochgeladen werden:",
     testCloud: "Cloud-Verbindung testen", testRunning: "Cloud-Test läuft …", testConfigOk: "✓ Konfiguration erkannt", testAuthOk: "✓ Anmeldung aktiv", testTableOk: "✓ Tabelle app_state erreichbar", testWriteOk: "✓ Testdaten geschrieben", testReadOk: "✓ Testdaten gelesen", testCleanupOk: "✓ Testdaten entfernt", testSuccess: "Cloud-Login und Synchronisierung funktionieren.", testNoLogin: "Keine aktive Anmeldung. Bitte zuerst anmelden.", testFailed: "Cloud-Test fehlgeschlagen:",
     protectedAccess: "GESCHÜTZTER ZUGANG", loginTitle: "Bei HailQuote anmelden", loginHint: "Die Anwendung und Kundendaten sind nur für autorisierte Benutzer zugänglich.",
     parts: ["Motorhaube", "Dach", "Kofferraumdeckel", "Kotflügel vorne links", "Kotflügel vorne rechts", "Tür vorne links", "Tür vorne rechts", "Tür hinten links", "Tür hinten rechts", "Seitenteil links", "Seitenteil rechts"]
@@ -54,7 +54,7 @@ const translations = {
     vehicleColor: "Colour", calculationModel: "Calculation model", dentModel: "Price per dent", hourlyModel: "Labour time × hourly rate", hourlyRate: "Hourly rate", partType: "Part type", paint: "Paint", time: "Time", yes: "Yes", no: "No",
     dataManagement: "Data backup", exportBackup: "Export backup", importBackup: "Import backup", clearData: "Delete local data",
     invalidQuote: "Please enter at least customer name, vehicle and quote number.", importSuccess: "Backup imported successfully.", importError: "The backup file is invalid.", clearConfirm: "Permanently delete all local customers, quotes and company data?",
-    cloud: "Cloud", cloudSync: "Cloud sync", cloudHint: "Secure synchronization with Supabase", password: "Password", login: "Sign in", logout: "Sign out", uploadCloud: "Upload local data", downloadCloud: "Load cloud data", syncWarning: "Uploading stores customer and quote data in your Supabase project.", cloudOffline: "Cloud connection is unavailable.", cloudSignedOut: "Not signed in", cloudSignedIn: "Signed in as", cloudSaved: "Cloud data saved.", cloudLoaded: "Cloud data loaded.", cloudEmpty: "No cloud data exists for this account yet.",
+    cloud: "Cloud", cloudSync: "Cloud sync", cloudHint: "Secure synchronization with Supabase", password: "Password", login: "Sign in", logout: "Sign out", uploadCloud: "Upload local data", downloadCloud: "Load cloud data", syncWarning: "Uploading stores customer and quote data in your Supabase project.", cloudOffline: "Cloud connection is unavailable.", cloudSignedOut: "Not signed in", cloudSignedIn: "Signed in as", cloudSaved: "Cloud data saved.", cloudLoaded: "Cloud data loaded.", cloudEmpty: "No cloud data exists for this account yet.", cloudPdfError: "The PDF was saved locally but could not be uploaded to the Offers cloud folder:",
     testCloud: "Test cloud connection", testRunning: "Cloud test running …", testConfigOk: "✓ Configuration detected", testAuthOk: "✓ Login active", testTableOk: "✓ app_state table reachable", testWriteOk: "✓ Test data written", testReadOk: "✓ Test data read", testCleanupOk: "✓ Test data removed", testSuccess: "Cloud login and synchronization work.", testNoLogin: "No active login. Please sign in first.", testFailed: "Cloud test failed:",
     protectedAccess: "PROTECTED ACCESS", loginTitle: "Sign in to HailQuote", loginHint: "The application and customer data are accessible to authorized users only.",
     parts: ["Hood", "Roof", "Trunk lid", "Front left fender", "Front right fender", "Front left door", "Front right door", "Rear left door", "Rear right door", "Left quarter panel", "Right quarter panel"]
@@ -84,7 +84,7 @@ const translations = {
     vehicleColor: "Color", calculationModel: "Modelo de cálculo", dentModel: "Precio por abolladura", hourlyModel: "Tiempo × tarifa por hora", hourlyRate: "Tarifa por hora", partType: "Tipo de pieza", paint: "Pintura", time: "Tiempo", yes: "Sí", no: "No",
     dataManagement: "Copia de seguridad", exportBackup: "Exportar copia", importBackup: "Importar copia", clearData: "Eliminar datos locales",
     invalidQuote: "Introduce al menos el cliente, el vehículo y el número de presupuesto.", importSuccess: "La copia se ha importado correctamente.", importError: "El archivo de copia no es válido.", clearConfirm: "¿Eliminar permanentemente todos los clientes, presupuestos y datos de empresa?",
-    cloud: "Nube", cloudSync: "Sincronización en la nube", cloudHint: "Sincronización segura con Supabase", password: "Contraseña", login: "Iniciar sesión", logout: "Cerrar sesión", uploadCloud: "Subir datos locales", downloadCloud: "Cargar datos de la nube", syncWarning: "Al subir, los datos de clientes y presupuestos se guardan en tu proyecto Supabase.", cloudOffline: "La conexión con la nube no está disponible.", cloudSignedOut: "Sesión no iniciada", cloudSignedIn: "Sesión iniciada como", cloudSaved: "Datos guardados en la nube.", cloudLoaded: "Datos de la nube cargados.", cloudEmpty: "Todavía no hay datos para esta cuenta.",
+    cloud: "Nube", cloudSync: "Sincronización en la nube", cloudHint: "Sincronización segura con Supabase", password: "Contraseña", login: "Iniciar sesión", logout: "Cerrar sesión", uploadCloud: "Subir datos locales", downloadCloud: "Cargar datos de la nube", syncWarning: "Al subir, los datos de clientes y presupuestos se guardan en tu proyecto Supabase.", cloudOffline: "La conexión con la nube no está disponible.", cloudSignedOut: "Sesión no iniciada", cloudSignedIn: "Sesión iniciada como", cloudSaved: "Datos guardados en la nube.", cloudLoaded: "Datos de la nube cargados.", cloudEmpty: "Todavía no hay datos para esta cuenta.", cloudPdfError: "El PDF se guardó localmente, pero no se pudo subir a la carpeta Ofertas de la nube:",
     testCloud: "Probar conexión", testRunning: "Prueba de nube en curso …", testConfigOk: "✓ Configuración detectada", testAuthOk: "✓ Sesión activa", testTableOk: "✓ Tabla app_state accesible", testWriteOk: "✓ Datos de prueba escritos", testReadOk: "✓ Datos de prueba leídos", testCleanupOk: "✓ Datos de prueba eliminados", testSuccess: "El acceso y la sincronización funcionan.", testNoLogin: "No hay una sesión activa. Inicia sesión primero.", testFailed: "La prueba ha fallado:",
     protectedAccess: "ACCESO PROTEGIDO", loginTitle: "Iniciar sesión en HailQuote", loginHint: "La aplicación y los datos de clientes solo son accesibles para usuarios autorizados.",
     parts: ["Capó", "Techo", "Portón del maletero", "Aleta delantera izquierda", "Aleta delantera derecha", "Puerta delantera izquierda", "Puerta delantera derecha", "Puerta trasera izquierda", "Puerta trasera derecha", "Panel lateral izquierdo", "Panel lateral derecho"]
@@ -630,6 +630,22 @@ async function imageToDataUrl(url) {
   });
 }
 
+async function uploadOfferPdf(pdf, data, lang) {
+  if (!cloudClient) return;
+  const { data: auth } = await cloudClient.auth.getUser();
+  if (!auth.user) return;
+  const baseName = String(data.quoteNumber || `Angebot-${Date.now()}`)
+    .replace(/[^a-zA-Z0-9._-]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  const path = `${baseName}/${baseName}-${lang}.pdf`;
+  const blob = pdf.output("blob");
+  const { error } = await cloudClient.storage.from("angebote").upload(path, blob, {
+    contentType: "application/pdf",
+    upsert: true
+  });
+  if (error) alert(`${translations[uiLanguage].cloudPdfError}\n${error.message}`);
+}
+
 async function generateBudgetPdf(data, totals, lang, action = "save", previewWindow = null) {
   const { jsPDF } = window.jspdf;
   const pdf = new jsPDF({ unit: "mm", format: "a4" });
@@ -728,6 +744,7 @@ async function generateBudgetPdf(data, totals, lang, action = "save", previewWin
   } else {
     pdf.save(`${safe(data.quoteNumber || "DELIESTRY-Budget")}.pdf`);
     archiveCurrentQuote();
+    await uploadOfferPdf(pdf, data, lang);
   }
 }
 
