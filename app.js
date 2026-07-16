@@ -539,10 +539,112 @@ function saveCompany() {
   closeSimpleModal("settingsModal");
 }
 
-function generatePdf() {
+async function imageToDataUrl(url) {
+  const response = await fetch(url);
+  const blob = await response.blob();
+  return await new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
+async function generateHourlyBudgetPdf(data, totals, lang) {
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF({ unit: "mm", format: "a4" });
+  const labels = {
+    de: { title: "KOSTENVORANSCHLAG", to: "Angebot an:", car: "Fahrzeugdaten:", order: "Angebotsnummer:", date: "Datum:", rate: "Stundensatz:", number: "Nr.", parts: "Bauteile", small: "Klein", medium: "Mittel", large: "Groß", type: "Typ", paint: "Lack", time: "Zeit", value: "Wert", subtotal: "Zwischensumme", discount: "Rabatt", disassembly: "Demontage", materials: "Material", vat: "MwSt.", amount: "Gesamtbetrag", yes: "Ja", no: "Nein" },
+    en: { title: "BUDGET", to: "Budget to:", car: "Car information:", order: "Order number:", date: "Date:", rate: "Hourly rate:", number: "N°", parts: "Parts", small: "Small", medium: "Medium", large: "Large", type: "Part type", paint: "Paint", time: "Time", value: "Value", subtotal: "Subtotal", discount: "Discount", disassembly: "Disassembly", materials: "Materials", vat: "VAT", amount: "Amount", yes: "Yes", no: "No" },
+    es: { title: "PRESUPUESTO", to: "Presupuesto para:", car: "Datos del vehículo:", order: "N.º presupuesto:", date: "Fecha:", rate: "Tarifa por hora:", number: "N.º", parts: "Piezas", small: "Pequeña", medium: "Mediana", large: "Grande", type: "Tipo", paint: "Pintura", time: "Tiempo", value: "Importe", subtotal: "Subtotal", discount: "Descuento", disassembly: "Desmontaje", materials: "Material", vat: "IVA", amount: "Total", yes: "Sí", no: "No" }
+  }[lang];
+  const safe = value => String(value || "").replace(/€/g, "EUR").replace(/[–—]/g, "-").replace(/[^\x20-\xFF]/g, "");
+  const euro = value => money(value, lang).replace("€", "EUR");
+  const date = data.quoteDate ? new Intl.DateTimeFormat(lang === "en" ? "en-GB" : lang).format(new Date(`${data.quoteDate}T12:00:00`)) : "";
+
+  try {
+    const logo = await imageToDataUrl("assets/deliestry-logo.jpg");
+    pdf.addImage(logo, "JPEG", 14, 9, 47, 20, undefined, "FAST");
+  } catch (_) {}
+
+  pdf.setTextColor(20); pdf.setFont("helvetica", "normal"); pdf.setFontSize(9);
+  pdf.text(["DELIESTRY, S.L.U.", "service@deliestry.eu", "+34 658 116 486", "C/ Colón 4 - 46950", "Valencia / España"], 96, 12, { align: "center", lineHeightFactor: 1.55 });
+  pdf.setFont("helvetica", "bold"); pdf.setFontSize(17); pdf.text(labels.title, 194, 13, { align: "right" });
+  pdf.setFont("helvetica", "normal"); pdf.setFontSize(9);
+  pdf.text(labels.order, 137, 23); pdf.text(safe(data.quoteNumber), 194, 23, { align: "right" });
+  pdf.text(labels.date, 137, 31); pdf.text(safe(date), 194, 31, { align: "right" });
+  pdf.setDrawColor(60); pdf.setLineWidth(.25); pdf.line(134, 35, 194, 35);
+
+  pdf.setFont("helvetica", "bold"); pdf.setFontSize(14);
+  pdf.text(labels.to, 14, 53); pdf.text(labels.car, 78, 53);
+  pdf.setFont("helvetica", "normal"); pdf.setFontSize(9);
+  const customerLines = [data.customerName, data.email, data.phone, data.address].filter(Boolean).map(safe);
+  const carLines = [data.brandModel, data.vehicleColor, data.plate, data.vin ? `VIN: ${data.vin}` : "", `${labels.rate} ${euro(+data.hourlyRate || 0)}`].filter(Boolean).map(safe);
+  pdf.text(customerLines, 14, 60, { lineHeightFactor: 1.65 });
+  pdf.text(carLines, 78, 60, { lineHeightFactor: 1.65 });
+
+  let y = 84;
+  const cols = [14, 23, 65, 82, 99, 114, 133, 151, 171, 194];
+  pdf.setFillColor(0); pdf.rect(10, y, 190, 8, "F");
+  pdf.setTextColor(255); pdf.setFont("helvetica", "bold"); pdf.setFontSize(7);
+  [labels.number, labels.parts, labels.small, labels.medium, labels.large, labels.type, labels.paint, labels.time, labels.value].forEach((label, i) => {
+    const x = i < 2 ? cols[i] : cols[i + 1];
+    pdf.text(safe(label), x, y + 5.2, { align: i < 2 ? "left" : "right" });
+  });
+  y += 8;
+
+  let displayNumber = 0;
+  rows.querySelectorAll("tr").forEach((row, index) => {
+    const dents = [...row.querySelectorAll(".dent-input")].map(input => +input.value || 0);
+    const hours = +row.querySelector(".hours-input").value || 0;
+    if (!hours && !dents.some(Boolean)) return;
+    displayNumber++;
+    if (displayNumber % 2 === 0) { pdf.setFillColor(225); pdf.rect(10, y, 190, 8, "F"); }
+    const value = hours * (+data.hourlyRate || 0);
+    pdf.setTextColor(20); pdf.setFont("helvetica", "normal"); pdf.setFontSize(7.5);
+    pdf.text(String(index + 1), 14, y + 5.2);
+    pdf.text(safe(translations[lang].parts[index]), 23, y + 5.2);
+    pdf.text(dents[0] ? String(dents[0]) : "-", 82, y + 5.2, { align: "right" });
+    pdf.text(dents[1] ? String(dents[1]) : "-", 99, y + 5.2, { align: "right" });
+    pdf.text(dents[2] ? String(dents[2]) : "-", 114, y + 5.2, { align: "right" });
+    pdf.text(safe(row.querySelector(".part-type").value), 133, y + 5.2, { align: "right" });
+    pdf.text(row.querySelector(".paint-input").value === "yes" ? labels.yes : labels.no, 151, y + 5.2, { align: "right" });
+    pdf.text(`${hours.toFixed(2)} h`, 171, y + 5.2, { align: "right" });
+    pdf.text(safe(euro(value)), 194, y + 5.2, { align: "right" });
+    y += 8;
+  });
+
+  y += 5;
+  const summaryX = 130, valueX = 194;
+  const lines = [
+    [labels.subtotal, `${totals.totalHours.toFixed(2)} h`, totals.repair],
+    [labels.discount, "", -totals.discountAmount],
+    [labels.disassembly, "", +data.assembly || 0],
+    [labels.materials, "", +data.materials || 0],
+    [`${labels.vat} ${(+data.tax || 0).toFixed(2)}%`, "", totals.taxAmount]
+  ];
+  pdf.setFontSize(8); pdf.setTextColor(25);
+  lines.forEach(([label, hours, value]) => {
+    pdf.text(safe(label), summaryX, y);
+    if (hours) pdf.text(hours, 166, y, { align: "right" });
+    pdf.text(safe(euro(value)), valueX, y, { align: "right" });
+    y += 8;
+  });
+  pdf.setFillColor(80); pdf.rect(126, y - 2, 74, 9, "F");
+  pdf.setTextColor(255); pdf.setFont("helvetica", "bold"); pdf.setFontSize(10);
+  pdf.text(labels.amount, 130, y + 4); pdf.text(safe(euro(totals.gross)), 194, y + 4, { align: "right" });
+
+  pdf.setTextColor(105); pdf.setFont("helvetica", "normal"); pdf.setFontSize(6.8);
+  pdf.text("DELIESTRY, S.L.U. · VAT B44950608 · EORI ESB44950608 · service@deliestry.eu", 105, 286, { align: "center" });
+  pdf.save(`${safe(data.quoteNumber || "DELIESTRY-Budget")}.pdf`);
+  archiveCurrentQuote();
+}
+
+async function generatePdf() {
   if (!validateQuote()) return;
   if (!window.jspdf?.jsPDF) return window.print();
   const lang = $("#offerLanguage").value, t = offerText[lang], data = currentQuoteData(), totals = calculate(), company = store.company();
+  if (totals.hourly) return generateHourlyBudgetPdf(data, totals, lang);
   const { jsPDF } = window.jspdf;
   const pdf = new jsPDF({ unit: "mm", format: "a4" });
   const text = value => String(value || "")
