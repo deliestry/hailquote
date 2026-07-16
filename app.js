@@ -21,6 +21,7 @@ const translations = {
     companyProfile: "Firmenprofil", companyHint: "Erscheint auf jedem Angebot und PDF", companyName: "Firmenname", taxId: "Steuernummer / USt-ID", logo: "Firmenlogo", saveCompany: "Firmenprofil speichern",
     quoteArchive: "Angebotsarchiv", archiveHint: "Gespeicherte und exportierte Angebote", emptyArchive: "Noch keine Angebote archiviert.", loadQuote: "Öffnen", deleteQuote: "Löschen", savedNotice: "Gespeichert",
     quoteStatus: "Angebotsstatus", statusDraft: "Entwurf", statusSent: "Versendet", statusAccepted: "Angenommen", statusRejected: "Abgelehnt",
+    vehicleColor: "Farbe", calculationModel: "Kalkulationsmodell", dentModel: "Preis je Delle", hourlyModel: "Arbeitszeit × Stundensatz", hourlyRate: "Stundenverrechnungssatz", partType: "Bauteiltyp", paint: "Lack", time: "Zeit", yes: "Ja", no: "Nein",
     dataManagement: "Datensicherung", exportBackup: "Backup exportieren", importBackup: "Backup importieren", clearData: "Lokale Daten löschen",
     invalidQuote: "Bitte mindestens Kundenname, Fahrzeug und Angebotsnummer ausfüllen.", importSuccess: "Backup wurde erfolgreich importiert.", importError: "Die Backup-Datei ist ungültig.", clearConfirm: "Alle lokalen Kunden, Angebote und Firmendaten unwiderruflich löschen?",
     cloud: "Cloud", cloudSync: "Cloud-Synchronisierung", cloudHint: "Gesicherte Synchronisierung mit Supabase", password: "Passwort", login: "Anmelden", logout: "Abmelden", uploadCloud: "Lokale Daten hochladen", downloadCloud: "Cloud-Daten laden", syncWarning: "Beim Hochladen werden Kunden- und Angebotsdaten in Ihrem Supabase-Projekt gespeichert.", cloudOffline: "Cloud-Verbindung ist nicht verfügbar.", cloudSignedOut: "Nicht angemeldet", cloudSignedIn: "Angemeldet als", cloudSaved: "Cloud-Daten wurden gespeichert.", cloudLoaded: "Cloud-Daten wurden geladen.", cloudEmpty: "Für dieses Konto sind noch keine Cloud-Daten vorhanden.",
@@ -50,6 +51,7 @@ const translations = {
     companyProfile: "Company profile", companyHint: "Appears on every quote and PDF", companyName: "Company name", taxId: "Tax number / VAT ID", logo: "Company logo", saveCompany: "Save company profile",
     quoteArchive: "Quote archive", archiveHint: "Saved and exported quotations", emptyArchive: "No archived quotes yet.", loadQuote: "Open", deleteQuote: "Delete", savedNotice: "Saved",
     quoteStatus: "Quote status", statusDraft: "Draft", statusSent: "Sent", statusAccepted: "Accepted", statusRejected: "Rejected",
+    vehicleColor: "Colour", calculationModel: "Calculation model", dentModel: "Price per dent", hourlyModel: "Labour time × hourly rate", hourlyRate: "Hourly rate", partType: "Part type", paint: "Paint", time: "Time", yes: "Yes", no: "No",
     dataManagement: "Data backup", exportBackup: "Export backup", importBackup: "Import backup", clearData: "Delete local data",
     invalidQuote: "Please enter at least customer name, vehicle and quote number.", importSuccess: "Backup imported successfully.", importError: "The backup file is invalid.", clearConfirm: "Permanently delete all local customers, quotes and company data?",
     cloud: "Cloud", cloudSync: "Cloud sync", cloudHint: "Secure synchronization with Supabase", password: "Password", login: "Sign in", logout: "Sign out", uploadCloud: "Upload local data", downloadCloud: "Load cloud data", syncWarning: "Uploading stores customer and quote data in your Supabase project.", cloudOffline: "Cloud connection is unavailable.", cloudSignedOut: "Not signed in", cloudSignedIn: "Signed in as", cloudSaved: "Cloud data saved.", cloudLoaded: "Cloud data loaded.", cloudEmpty: "No cloud data exists for this account yet.",
@@ -79,6 +81,7 @@ const translations = {
     companyProfile: "Perfil de empresa", companyHint: "Aparece en cada presupuesto y PDF", companyName: "Nombre de empresa", taxId: "NIF / IVA", logo: "Logotipo", saveCompany: "Guardar perfil",
     quoteArchive: "Archivo de presupuestos", archiveHint: "Presupuestos guardados y exportados", emptyArchive: "Todavía no hay presupuestos archivados.", loadQuote: "Abrir", deleteQuote: "Eliminar", savedNotice: "Guardado",
     quoteStatus: "Estado", statusDraft: "Borrador", statusSent: "Enviado", statusAccepted: "Aceptado", statusRejected: "Rechazado",
+    vehicleColor: "Color", calculationModel: "Modelo de cálculo", dentModel: "Precio por abolladura", hourlyModel: "Tiempo × tarifa por hora", hourlyRate: "Tarifa por hora", partType: "Tipo de pieza", paint: "Pintura", time: "Tiempo", yes: "Sí", no: "No",
     dataManagement: "Copia de seguridad", exportBackup: "Exportar copia", importBackup: "Importar copia", clearData: "Eliminar datos locales",
     invalidQuote: "Introduce al menos el cliente, el vehículo y el número de presupuesto.", importSuccess: "La copia se ha importado correctamente.", importError: "El archivo de copia no es válido.", clearConfirm: "¿Eliminar permanentemente todos los clientes, presupuestos y datos de empresa?",
     cloud: "Nube", cloudSync: "Sincronización en la nube", cloudHint: "Sincronización segura con Supabase", password: "Contraseña", login: "Iniciar sesión", logout: "Cerrar sesión", uploadCloud: "Subir datos locales", downloadCloud: "Cargar datos de la nube", syncWarning: "Al subir, los datos de clientes y presupuestos se guardan en tu proyecto Supabase.", cloudOffline: "La conexión con la nube no está disponible.", cloudSignedOut: "Sesión no iniciada", cloudSignedIn: "Sesión iniciada como", cloudSaved: "Datos guardados en la nube.", cloudLoaded: "Datos de la nube cargados.", cloudEmpty: "Todavía no hay datos para esta cuenta.",
@@ -97,7 +100,7 @@ const offerText = {
 const $ = (selector) => document.querySelector(selector);
 const form = $("#quoteForm");
 const rows = $("#damageRows");
-const fields = ["smallRate", "mediumRate", "largeRate", "assembly", "materials", "discount", "tax", "validDays", "quoteStatus"];
+const fields = ["smallRate", "mediumRate", "largeRate", "hourlyRate", "calculationMode", "assembly", "materials", "discount", "tax", "validDays", "quoteStatus"];
 let uiLanguage = localStorage.getItem("hailquote.uiLanguage") || "de";
 let cloudClient = null;
 const SUPABASE_URL = "https://dblzvdderfcvuzrupbhj.supabase.co";
@@ -296,24 +299,41 @@ function defaultQuoteNumber() {
 }
 
 function renderRows() {
-  const counts = [...rows.querySelectorAll("tr")].map(row => [...row.querySelectorAll("input")].map(input => input.value));
+  const old = [...rows.querySelectorAll("tr")].map(row => ({
+    dents: [...row.querySelectorAll(".dent-input")].map(input => input.value),
+    partType: row.querySelector(".part-type")?.value || "-",
+    paint: row.querySelector(".paint-input")?.value || "no",
+    hours: row.querySelector(".hours-input")?.value || "0"
+  }));
   rows.innerHTML = translations[uiLanguage].parts.map((part, index) => `
     <tr data-part="${index}">
       <td>${part}</td>
-      ${["small", "medium", "large"].map((size, i) => `<td><input class="dent-input" data-size="${size}" type="number" min="0" step="1" value="${counts[index]?.[i] || 0}" aria-label="${part} ${translations[uiLanguage][size]}"></td>`).join("")}
+      ${["small", "medium", "large"].map((size, i) => `<td><input class="dent-input" data-size="${size}" type="number" min="0" step="1" value="${old[index]?.dents[i] || 0}" aria-label="${part} ${translations[uiLanguage][size]}"></td>`).join("")}
+      <td><select class="part-type"><option value="-">-</option><option value="aluminium">Alu</option><option value="steel">Steel</option></select></td>
+      <td><select class="paint-input"><option value="no">${translations[uiLanguage].no}</option><option value="yes">${translations[uiLanguage].yes}</option></select></td>
+      <td><input class="hours-input" type="number" min="0" step="0.05" value="${old[index]?.hours || 0}"></td>
       <td class="row-total">0,00 €</td>
     </tr>`).join("");
+  rows.querySelectorAll("tr").forEach((row, i) => {
+    row.querySelector(".part-type").value = old[i]?.partType || "-";
+    row.querySelector(".paint-input").value = old[i]?.paint || "no";
+  });
 }
 
 function calculate() {
   const rates = { small: +$("#smallRate").value || 0, medium: +$("#mediumRate").value || 0, large: +$("#largeRate").value || 0 };
-  let repair = 0, count = 0;
+  const hourly = $("#calculationMode").value === "hourly";
+  document.body.classList.toggle("hourly-mode", hourly);
+  let repair = 0, count = 0, totalHours = 0;
   rows.querySelectorAll("tr").forEach(row => {
-    let rowTotal = 0;
+    let dentTotal = 0;
     row.querySelectorAll(".dent-input").forEach(input => {
       const qty = Math.max(0, +input.value || 0);
-      count += qty; rowTotal += qty * rates[input.dataset.size];
+      count += qty; dentTotal += qty * rates[input.dataset.size];
     });
+    const hours = Math.max(0, +row.querySelector(".hours-input").value || 0);
+    totalHours += hours;
+    const rowTotal = hourly ? hours * (+$("#hourlyRate").value || 0) : dentTotal;
     row.querySelector(".row-total").textContent = money(rowTotal);
     repair += rowTotal;
   });
@@ -331,7 +351,7 @@ function calculate() {
   $("#taxTotal").textContent = money(taxAmount);
   $("#grossTotal").textContent = money(gross);
   save();
-  return { rates, repair, count, extras, subtotal, discountAmount, net, taxAmount, gross };
+  return { rates, repair, count, totalHours, extras, subtotal, discountAmount, net, taxAmount, gross, hourly };
 }
 
 function save() {
@@ -339,6 +359,7 @@ function save() {
   fields.forEach(id => data[id] = $(`#${id}`).value);
   data.offerLanguage = $("#offerLanguage").value;
   data.dents = [...document.querySelectorAll(".dent-input")].map(i => i.value);
+  data.rowDetails = [...rows.querySelectorAll("tr")].map(row => ({ partType: row.querySelector(".part-type").value, paint: row.querySelector(".paint-input").value, hours: row.querySelector(".hours-input").value }));
   localStorage.setItem("hailquote.quote", JSON.stringify(data));
 }
 
@@ -347,17 +368,23 @@ function currentQuoteData() {
   fields.forEach(id => data[id] = $(`#${id}`).value);
   data.offerLanguage = $("#offerLanguage").value;
   data.dents = [...document.querySelectorAll(".dent-input")].map(i => i.value);
+  data.rowDetails = [...rows.querySelectorAll("tr")].map(row => ({ partType: row.querySelector(".part-type").value, paint: row.querySelector(".paint-input").value, hours: row.querySelector(".hours-input").value }));
   return data;
 }
 
 function applyQuoteData(data) {
   Object.entries(data || {}).forEach(([key, value]) => {
-    if (key === "dents" || key === "offerLanguage") return;
+    if (key === "dents" || key === "rowDetails" || key === "offerLanguage") return;
     const el = form.elements[key] || document.getElementById(key);
     if (el) el.value = value;
   });
   $("#offerLanguage").value = data.offerLanguage || "de";
   document.querySelectorAll(".dent-input").forEach((input, i) => input.value = data.dents?.[i] || 0);
+  rows.querySelectorAll("tr").forEach((row, i) => {
+    row.querySelector(".part-type").value = data.rowDetails?.[i]?.partType || "-";
+    row.querySelector(".paint-input").value = data.rowDetails?.[i]?.paint || "no";
+    row.querySelector(".hours-input").value = data.rowDetails?.[i]?.hours || 0;
+  });
   calculate();
 }
 
@@ -391,12 +418,17 @@ function load() {
     return;
   }
   Object.entries(data).forEach(([key, value]) => {
-    if (key === "dents" || key === "offerLanguage") return;
+    if (key === "dents" || key === "rowDetails" || key === "offerLanguage") return;
     const el = form.elements[key] || document.getElementById(key);
     if (el) el.value = value;
   });
   $("#offerLanguage").value = data.offerLanguage || "de";
   document.querySelectorAll(".dent-input").forEach((input, i) => input.value = data.dents?.[i] || 0);
+  rows.querySelectorAll("tr").forEach((row, i) => {
+    row.querySelector(".part-type").value = data.rowDetails?.[i]?.partType || "-";
+    row.querySelector(".paint-input").value = data.rowDetails?.[i]?.paint || "no";
+    row.querySelector(".hours-input").value = data.rowDetails?.[i]?.hours || 0;
+  });
 }
 
 function setLanguage(language) {
@@ -411,6 +443,11 @@ function setLanguage(language) {
   renderRows();
   const stored = JSON.parse(localStorage.getItem("hailquote.quote") || "{}");
   document.querySelectorAll(".dent-input").forEach((input, i) => input.value = stored.dents?.[i] || 0);
+  rows.querySelectorAll("tr").forEach((row, i) => {
+    row.querySelector(".part-type").value = stored.rowDetails?.[i]?.partType || "-";
+    row.querySelector(".paint-input").value = stored.rowDetails?.[i]?.paint || "no";
+    row.querySelector(".hours-input").value = stored.rowDetails?.[i]?.hours || 0;
+  });
   calculate();
   refreshCustomers();
 }
@@ -429,8 +466,9 @@ function buildOffer() {
   rows.querySelectorAll("tr").forEach((row, index) => {
     const inputs = [...row.querySelectorAll(".dent-input")];
     const qty = inputs.reduce((sum, input) => sum + (+input.value || 0), 0);
-    const amount = inputs.reduce((sum, input) => sum + (+input.value || 0) * totals.rates[input.dataset.size], 0);
-    if (qty) lines.push(`<tr><td>${translations[lang].parts[index]}</td><td>${qty}</td><td>${money(amount, lang)}</td></tr>`);
+    const hours = +row.querySelector(".hours-input").value || 0;
+    const amount = totals.hourly ? hours * (+$("#hourlyRate").value || 0) : inputs.reduce((sum, input) => sum + (+input.value || 0) * totals.rates[input.dataset.size], 0);
+    if (qty || hours) lines.push(`<tr><td>${translations[lang].parts[index]} · ${row.querySelector(".part-type").value} · ${translations[lang].paint}: ${translations[lang][row.querySelector(".paint-input").value]}</td><td>${totals.hourly ? `${hours.toFixed(2)} h` : qty}</td><td>${money(amount, lang)}</td></tr>`);
   });
   if (+$("#assembly").value) lines.push(`<tr><td>${t.assembly}</td><td>1</td><td>${money(+$("#assembly").value, lang)}</td></tr>`);
   if (+$("#materials").value) lines.push(`<tr><td>${t.materials}</td><td>1</td><td>${money(+$("#materials").value, lang)}</td></tr>`);
@@ -442,7 +480,7 @@ function buildOffer() {
     </header>
     <div class="offer-addresses">
       <div><div class="offer-section-label">${t.customer}</div><strong>${escapeHtml(data.customerName) || "—"}</strong><br>${escapeHtml(data.address)}<br>${escapeHtml(data.email)}<br>${escapeHtml(data.phone)}</div>
-      <div><div class="offer-section-label">${t.vehicle}</div><strong>${escapeHtml(data.brandModel) || "—"}</strong><br>${escapeHtml(data.plate)}<br>VIN: ${escapeHtml(data.vin)}<br>${data.mileage ? `${escapeHtml(data.mileage)} km` : ""}</div>
+      <div><div class="offer-section-label">${t.vehicle}</div><strong>${escapeHtml(data.brandModel) || "—"}</strong><br>${escapeHtml(data.vehicleColor)}<br>${escapeHtml(data.plate)}<br>VIN: ${escapeHtml(data.vin)}<br>${data.mileage ? `${escapeHtml(data.mileage)} km` : ""}${totals.hourly ? `<br>${translations[lang].hourlyRate}: ${money(+$("#hourlyRate").value, lang)}` : ""}</div>
     </div>
     <h2 id="offerTitle">${t.quote} – ${escapeHtml(data.brandModel) || t.repair}</h2>
     <p class="offer-lead">${t.intro}</p>
@@ -521,15 +559,40 @@ function generatePdf() {
   pdf.setFont("helvetica", "bold"); pdf.text(text(t.customer), 15, y); pdf.text(text(t.vehicle), 110, y); y += 5;
   pdf.setFont("helvetica", "normal");
   pdf.text([text(data.customerName), text(data.address), text(data.email), text(data.phone)].filter(Boolean), 15, y);
-  pdf.text([text(data.brandModel), text(data.plate), `VIN: ${text(data.vin)}`, data.mileage ? `${text(data.mileage)} km` : ""].filter(Boolean), 110, y);
+  pdf.text([text(data.brandModel), text(data.vehicleColor), text(data.plate), `VIN: ${text(data.vin)}`, totals.hourly ? `${text(translations[lang].hourlyRate)}: ${text(money(+data.hourlyRate, lang))}` : "", data.mileage ? `${text(data.mileage)} km` : ""].filter(Boolean), 110, y);
   y += 25; pdf.setFillColor(19, 36, 58); pdf.rect(15, y, 180, 8, "F"); pdf.setTextColor(255); pdf.setFont("helvetica", "bold");
-  pdf.text(text(t.description), 18, y + 5.4); pdf.text(text(t.quantity), 155, y + 5.4, { align: "right" }); pdf.text(text(t.price), 192, y + 5.4, { align: "right" }); y += 13;
+  if (totals.hourly) {
+    pdf.setFontSize(7);
+    pdf.text("#", 18, y + 5.4); pdf.text(text(translations[lang].part), 25, y + 5.4);
+    pdf.text(text(translations[lang].small), 91, y + 5.4, { align: "right" });
+    pdf.text(text(translations[lang].medium), 108, y + 5.4, { align: "right" });
+    pdf.text(text(translations[lang].large), 124, y + 5.4, { align: "right" });
+    pdf.text(text(translations[lang].paint), 145, y + 5.4, { align: "right" });
+    pdf.text(text(translations[lang].time), 166, y + 5.4, { align: "right" });
+    pdf.text(text(t.price), 192, y + 5.4, { align: "right" });
+  } else {
+    pdf.text(text(t.description), 18, y + 5.4); pdf.text(text(t.quantity), 155, y + 5.4, { align: "right" }); pdf.text(text(t.price), 192, y + 5.4, { align: "right" });
+  }
+  y += 13;
   pdf.setTextColor(23, 34, 53); pdf.setFont("helvetica", "normal");
   rows.querySelectorAll("tr").forEach((row, index) => {
     const inputs = [...row.querySelectorAll(".dent-input")], qty = inputs.reduce((s, i) => s + (+i.value || 0), 0);
-    if (!qty) return;
-    const amount = inputs.reduce((s, i) => s + (+i.value || 0) * totals.rates[i.dataset.size], 0);
-    pdf.text(text(translations[lang].parts[index]), 18, y); pdf.text(String(qty), 155, y, { align: "right" }); pdf.text(text(money(amount, lang)), 192, y, { align: "right" }); y += 7;
+    const hours = +row.querySelector(".hours-input").value || 0;
+    if (!qty && !hours) return;
+    const amount = totals.hourly ? hours * (+data.hourlyRate || 0) : inputs.reduce((s, i) => s + (+i.value || 0) * totals.rates[i.dataset.size], 0);
+    if (totals.hourly) {
+      pdf.setFillColor(index % 2 ? 235 : 255); pdf.rect(15, y - 4.5, 180, 7, "F");
+      pdf.setFontSize(7); pdf.text(String(index + 1), 18, y); pdf.text(text(translations[lang].parts[index]), 25, y);
+      pdf.text(String(+inputs[0].value || "-"), 91, y, { align: "right" });
+      pdf.text(String(+inputs[1].value || "-"), 108, y, { align: "right" });
+      pdf.text(String(+inputs[2].value || "-"), 124, y, { align: "right" });
+      pdf.text(text(translations[lang][row.querySelector(".paint-input").value]), 145, y, { align: "right" });
+      pdf.text(`${hours.toFixed(2)} h`, 166, y, { align: "right" });
+      pdf.text(text(money(amount, lang)), 192, y, { align: "right" });
+    } else {
+      pdf.text(text(translations[lang].parts[index]), 18, y); pdf.text(String(qty), 155, y, { align: "right" }); pdf.text(text(money(amount, lang)), 192, y, { align: "right" });
+    }
+    y += 7;
   });
   [[t.assembly, +data.assembly], [t.materials, +data.materials]].forEach(([label, amount]) => { if (amount) { pdf.text(text(label), 18, y); pdf.text("1", 155, y, { align: "right" }); pdf.text(text(money(amount, lang)), 192, y, { align: "right" }); y += 7; } });
   y += 7; const totalLines = [[t.subtotal, totals.subtotal], [t.discount, -totals.discountAmount], [t.net, totals.net], [`${t.vat} (${data.tax}%)`, totals.taxAmount], [t.total, totals.gross]];
@@ -658,12 +721,15 @@ $("#newQuote").addEventListener("click", () => {
   localStorage.removeItem("hailquote.quote");
   form.reset();
   fields.forEach(id => {
-    const defaults = { smallRate: 18, mediumRate: 32, largeRate: 55, assembly: 180, materials: 40, discount: 0, tax: 19, validDays: 14, quoteStatus: "draft" };
+    const defaults = { smallRate: 18, mediumRate: 32, largeRate: 55, hourlyRate: 120, calculationMode: "dent", assembly: 180, materials: 40, discount: 0, tax: 19, validDays: 14, quoteStatus: "draft" };
     $(`#${id}`).value = defaults[id];
   });
   form.elements.quoteDate.value = new Date().toISOString().slice(0, 10);
   form.elements.quoteNumber.value = defaultQuoteNumber();
   document.querySelectorAll(".dent-input").forEach(input => input.value = 0);
+  document.querySelectorAll(".hours-input").forEach(input => input.value = 0);
+  document.querySelectorAll(".part-type").forEach(input => input.value = "-");
+  document.querySelectorAll(".paint-input").forEach(input => input.value = "no");
   calculate();
 });
 

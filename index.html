@@ -131,6 +131,10 @@
               <input name="plate" placeholder="M-AB 1234">
             </label>
             <label class="field">
+              <span data-i18n="vehicleColor">Farbe</span>
+              <input name="vehicleColor" placeholder="Grau">
+            </label>
+            <label class="field">
               <span data-i18n="vin">FIN / VIN</span>
               <input name="vin" maxlength="17" placeholder="WVWZZZ...">
             </label>
@@ -158,6 +162,19 @@
             </div>
           </div>
           <div class="table-wrap">
+            <div class="calculation-toolbar">
+              <label class="field">
+                <span data-i18n="calculationModel">Kalkulationsmodell</span>
+                <select id="calculationMode">
+                  <option value="dent" data-i18n="dentModel">Preis je Delle</option>
+                  <option value="hourly" data-i18n="hourlyModel">Arbeitszeit × Stundensatz</option>
+                </select>
+              </label>
+              <label class="field hourly-setting">
+                <span data-i18n="hourlyRate">Stundenverrechnungssatz</span>
+                <div class="money-input"><input id="hourlyRate" type="number" min="0" step="0.01" value="120"><span>€</span></div>
+              </label>
+            </div>
             <table class="damage-table">
               <thead>
                 <tr>
@@ -165,6 +182,9 @@
                   <th data-i18n="small">Klein</th>
                   <th data-i18n="medium">Mittel</th>
                   <th data-i18n="large">Groß</th>
+                  <th data-i18n="partType">Bauteiltyp</th>
+                  <th data-i18n="paint">Lack</th>
+                  <th data-i18n="time">Zeit</th>
                   <th data-i18n="panelTotal">Summe</th>
                 </tr>
               </thead>
