@@ -1,0 +1,12 @@
+node_modules/
+.pnpm-store/
+*.swp
+*.swo
+.DS_Store
+work/
+outputs/
+package.json
+pnpm-lock.yaml
+pnpm-workspace.yaml
+netlify.toml
+supabase-schema.sql

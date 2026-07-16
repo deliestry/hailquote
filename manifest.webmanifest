@@ -1,0 +1,17 @@
+{
+  "name": "HailQuote – Hagelschaden Kalkulation",
+  "short_name": "HailQuote",
+  "description": "Hagelschäden kalkulieren und mehrsprachige Angebote als PDF erstellen.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f4f7fb",
+  "theme_color": "#13243a",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

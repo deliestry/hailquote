@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Mehrsprachige Kalkulation und Angebotserstellung für Hagelschäden.">
+  <meta name="theme-color" content="#13243a">
+  <title>HailQuote – Hagelschäden kalkulieren</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="HailQuote Startseite">
+      <span class="brand-mark">HQ</span>
+      <span>HailQuote</span>
+    </a>
+    <nav class="top-actions">
+      <label class="language-picker">
+        <span data-i18n="appLanguage">App-Sprache</span>
+        <select id="uiLanguage">
+          <option value="de">Deutsch</option>
+          <option value="en">English</option>
+          <option value="es">Español</option>
+        </select>
+      </label>
+      <button class="button button-secondary" id="newQuote" type="button" data-i18n="newQuote">Neues Angebot</button>
+      <button class="button button-secondary" id="openArchive" type="button" data-i18n="archive">Archiv</button>
+      <button class="button button-secondary" id="openSettings" type="button" data-i18n="settings">Firma</button>
+      <button class="button button-secondary" id="openCloud" type="button" data-i18n="cloud">Cloud</button>
+      <button class="button button-primary" id="exportPdf" type="button" data-i18n="exportPdf">Als PDF exportieren</button>
+    </nav>
+  </header>
+
+  <main class="workspace">
+    <section class="intro">
+      <div>
+        <p class="eyebrow" data-i18n="eyebrow">KALKULATION & ANGEBOT</p>
+        <h1 data-i18n="title">Hagelschaden sicher kalkulieren.</h1>
+        <p data-i18n="subtitle">Schaden erfassen, Kosten berechnen und ein professionelles Kundenangebot erstellen.</p>
+      </div>
+      <div class="status-pill"><span></span><span data-i18n="autoSaved">Lokal gespeichert</span></div>
+    </section>
+
+    <div class="layout">
+      <form id="quoteForm" class="editor">
+        <section class="card">
+          <div class="card-heading">
+            <span class="step">1</span>
+            <div>
+              <h2 data-i18n="customer">Kundendaten</h2>
+              <p data-i18n="customerHint">Empfänger des Angebots</p>
+            </div>
+          </div>
+          <div class="form-grid">
+            <label class="field field-wide">
+              <span data-i18n="selectCustomer">Gespeicherten Kunden auswählen</span>
+              <div class="inline-control">
+                <select id="customerSelect"><option value="" data-i18n="newCustomer">Neuer Kunde</option></select>
+                <button class="button button-secondary" id="saveCustomer" type="button" data-i18n="saveCustomer">Kunde speichern</button>
+              </div>
+            </label>
+            <label class="field field-wide">
+              <span data-i18n="customerName">Name / Firma</span>
+              <input name="customerName" autocomplete="name" placeholder="Max Mustermann" required>
+            </label>
+            <label class="field">
+              <span data-i18n="email">E-Mail</span>
+              <input name="email" type="email" autocomplete="email" placeholder="kunde@beispiel.de">
+            </label>
+            <label class="field">
+              <span data-i18n="phone">Telefon</span>
+              <input name="phone" autocomplete="tel" placeholder="+49 170 0000000">
+            </label>
+            <label class="field field-wide">
+              <span data-i18n="address">Anschrift</span>
+              <input name="address" autocomplete="street-address" placeholder="Straße, PLZ, Ort, Land">
+            </label>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-heading">
+            <span class="step">2</span>
+            <div>
+              <h2 data-i18n="vehicle">Fahrzeug</h2>
+              <p data-i18n="vehicleHint">Fahrzeug- und Auftragsdaten</p>
+            </div>
+          </div>
+          <div class="form-grid">
+            <label class="field">
+              <span data-i18n="brandModel">Marke & Modell</span>
+              <input name="brandModel" placeholder="Volkswagen Golf" required>
+            </label>
+            <label class="field">
+              <span data-i18n="plate">Kennzeichen</span>
+              <input name="plate" placeholder="M-AB 1234">
+            </label>
+            <label class="field">
+              <span data-i18n="vin">FIN / VIN</span>
+              <input name="vin" maxlength="17" placeholder="WVWZZZ...">
+            </label>
+            <label class="field">
+              <span data-i18n="mileage">Kilometerstand</span>
+              <input name="mileage" type="number" min="0" placeholder="85000">
+            </label>
+            <label class="field">
+              <span data-i18n="quoteNumber">Angebotsnummer</span>
+              <input name="quoteNumber" required>
+            </label>
+            <label class="field">
+              <span data-i18n="quoteDate">Angebotsdatum</span>
+              <input name="quoteDate" type="date">
+            </label>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-heading">
+            <span class="step">3</span>
+            <div>
+              <h2 data-i18n="damage">Schadenserfassung</h2>
+              <p data-i18n="damageHint">Dellen je Bauteil und Größe erfassen</p>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table class="damage-table">
+              <thead>
+                <tr>
+                  <th data-i18n="part">Bauteil</th>
+                  <th data-i18n="small">Klein</th>
+                  <th data-i18n="medium">Mittel</th>
+                  <th data-i18n="large">Groß</th>
+                  <th data-i18n="panelTotal">Summe</th>
+                </tr>
+              </thead>
+              <tbody id="damageRows"></tbody>
+            </table>
+          </div>
+          <div class="rate-grid">
+            <label class="field">
+              <span data-i18n="smallRate">Preis kleine Delle</span>
+              <div class="money-input"><input id="smallRate" type="number" min="0" step="0.01" value="18"><span>€</span></div>
+            </label>
+            <label class="field">
+              <span data-i18n="mediumRate">Preis mittlere Delle</span>
+              <div class="money-input"><input id="mediumRate" type="number" min="0" step="0.01" value="32"><span>€</span></div>
+            </label>
+            <label class="field">
+              <span data-i18n="largeRate">Preis große Delle</span>
+              <div class="money-input"><input id="largeRate" type="number" min="0" step="0.01" value="55"><span>€</span></div>
+            </label>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-heading">
+            <span class="step">4</span>
+            <div>
+              <h2 data-i18n="extras">Zusatzkosten & Konditionen</h2>
+              <p data-i18n="extrasHint">Montage, Material, Rabatt und Steuer</p>
+            </div>
+          </div>
+          <div class="form-grid">
+            <label class="field">
+              <span data-i18n="assembly">Demontage / Montage</span>
+              <div class="money-input"><input id="assembly" type="number" min="0" step="0.01" value="180"><span>€</span></div>
+            </label>
+            <label class="field">
+              <span data-i18n="materials">Material / Sonstiges</span>
+              <div class="money-input"><input id="materials" type="number" min="0" step="0.01" value="40"><span>€</span></div>
+            </label>
+            <label class="field">
+              <span data-i18n="discount">Rabatt</span>
+              <div class="money-input"><input id="discount" type="number" min="0" max="100" step="0.1" value="0"><span>%</span></div>
+            </label>
+            <label class="field">
+              <span data-i18n="tax">MwSt.</span>
+              <div class="money-input"><input id="tax" type="number" min="0" max="100" step="0.1" value="19"><span>%</span></div>
+            </label>
+            <label class="field field-wide">
+              <span data-i18n="notes">Hinweise / Leistungsbeschreibung</span>
+              <textarea name="notes" rows="4" data-i18n-placeholder="notesPlaceholder" placeholder="Lackschadenfreie Ausbeultechnik (PDR), vorbehaltlich einer Prüfung vor Ort."></textarea>
+            </label>
+            <label class="field">
+              <span data-i18n="offerLanguage">Sprache des Angebots</span>
+              <select id="offerLanguage">
+                <option value="de">Deutsch</option>
+                <option value="en">English</option>
+                <option value="es">Español</option>
+              </select>
+            </label>
+            <label class="field">
+              <span data-i18n="validDays">Gültigkeit in Tagen</span>
+              <input id="validDays" type="number" min="1" value="14">
+            </label>
+            <label class="field">
+              <span data-i18n="quoteStatus">Angebotsstatus</span>
+              <select id="quoteStatus">
+                <option value="draft" data-i18n="statusDraft">Entwurf</option>
+                <option value="sent" data-i18n="statusSent">Versendet</option>
+                <option value="accepted" data-i18n="statusAccepted">Angenommen</option>
+                <option value="rejected" data-i18n="statusRejected">Abgelehnt</option>
+              </select>
+            </label>
+          </div>
+        </section>
+      </form>
+
+      <aside class="summary-column">
+        <section class="card summary-card">
+          <p class="summary-label" data-i18n="calculation">AKTUELLE KALKULATION</p>
+          <div class="summary-count">
+            <strong id="dentCount">0</strong>
+            <span data-i18n="dentsRecorded">Dellen erfasst</span>
+          </div>
+          <dl class="totals">
+            <div><dt data-i18n="dentRepair">Dellenreparatur</dt><dd id="repairTotal">0,00 €</dd></div>
+            <div><dt data-i18n="additionalCosts">Zusatzkosten</dt><dd id="extrasTotal">0,00 €</dd></div>
+            <div><dt data-i18n="discountValue">Rabatt</dt><dd id="discountTotal">− 0,00 €</dd></div>
+            <div><dt data-i18n="net">Netto</dt><dd id="netTotal">0,00 €</dd></div>
+            <div><dt data-i18n="taxValue">MwSt.</dt><dd id="taxTotal">0,00 €</dd></div>
+          </dl>
+          <div class="grand-total">
+            <span data-i18n="gross">Gesamtbetrag</span>
+            <strong id="grossTotal">0,00 €</strong>
+          </div>
+          <button class="button button-primary button-full" id="previewOffer" type="button" data-i18n="preview">Angebot ansehen</button>
+          <p class="privacy-note" data-i18n="privacy">Ihre Daten verlassen dieses Gerät nicht.</p>
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <div class="modal" id="offerModal" hidden>
+    <div class="modal-backdrop" data-close-modal></div>
+    <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="offerTitle">
+      <div class="modal-toolbar">
+        <button class="button button-secondary" type="button" data-close-modal data-i18n="close">Schließen</button>
+        <button class="button button-primary" id="printOffer" type="button" data-i18n="printPdf">Drucken / PDF</button>
+      </div>
+      <article class="offer-sheet" id="offerSheet"></article>
+    </div>
+  </div>
+
+  <div class="modal compact-modal" id="settingsModal" hidden>
+    <div class="modal-backdrop" data-close-settings></div>
+    <div class="modal-panel settings-panel" role="dialog" aria-modal="true">
+      <div class="modal-toolbar">
+        <button class="button button-secondary" type="button" data-close-settings data-i18n="close">Schließen</button>
+      </div>
+      <section class="card">
+        <div class="card-heading">
+          <span class="step">HQ</span>
+          <div><h2 data-i18n="companyProfile">Firmenprofil</h2><p data-i18n="companyHint">Erscheint auf jedem Angebot und PDF</p></div>
+        </div>
+        <form id="companyForm" class="form-grid">
+          <label class="field field-wide"><span data-i18n="companyName">Firmenname</span><input name="name" placeholder="Ihre Firma GmbH"></label>
+          <label class="field"><span data-i18n="email">E-Mail</span><input name="email" type="email"></label>
+          <label class="field"><span data-i18n="phone">Telefon</span><input name="phone"></label>
+          <label class="field field-wide"><span data-i18n="address">Anschrift</span><input name="address"></label>
+          <label class="field"><span data-i18n="taxId">Steuernummer / USt-ID</span><input name="taxId"></label>
+          <label class="field"><span data-i18n="logo">Firmenlogo</span><input id="companyLogo" type="file" accept="image/png,image/jpeg"></label>
+          <div class="field field-wide data-tools">
+            <span data-i18n="dataManagement">Datensicherung</span>
+            <div class="inline-control three-actions">
+              <button class="button button-secondary" id="exportBackup" type="button" data-i18n="exportBackup">Backup exportieren</button>
+              <label class="button button-secondary file-button"><span data-i18n="importBackup">Backup importieren</span><input id="importBackup" type="file" accept="application/json"></label>
+              <button class="button button-secondary danger-button" id="clearData" type="button" data-i18n="clearData">Lokale Daten löschen</button>
+            </div>
+          </div>
+          <div class="field field-wide">
+            <img id="logoPreview" class="logo-preview" alt="">
+            <button class="button button-primary" id="saveCompany" type="button" data-i18n="saveCompany">Firmenprofil speichern</button>
+          </div>
+        </form>
+      </section>
+    </div>
+  </div>
+
+  <div class="modal compact-modal" id="archiveModal" hidden>
+    <div class="modal-backdrop" data-close-archive></div>
+    <div class="modal-panel archive-panel" role="dialog" aria-modal="true">
+      <div class="modal-toolbar">
+        <button class="button button-secondary" type="button" data-close-archive data-i18n="close">Schließen</button>
+      </div>
+      <section class="card">
+        <div class="card-heading">
+          <span class="step">✓</span>
+          <div><h2 data-i18n="quoteArchive">Angebotsarchiv</h2><p data-i18n="archiveHint">Gespeicherte und exportierte Angebote</p></div>
+        </div>
+        <div id="archiveList" class="archive-list"></div>
+      </section>
+    </div>
+  </div>
+
+  <div class="modal compact-modal" id="cloudModal" hidden>
+    <div class="modal-backdrop" data-close-cloud></div>
+    <div class="modal-panel settings-panel" role="dialog" aria-modal="true">
+      <div class="modal-toolbar"><button class="button button-secondary" type="button" data-close-cloud data-i18n="close">Schließen</button></div>
+      <section class="card">
+        <div class="card-heading">
+          <span class="step">☁</span>
+          <div><h2 data-i18n="cloudSync">Cloud-Synchronisierung</h2><p data-i18n="cloudHint">Optional mit einem eigenen Supabase-Projekt</p></div>
+        </div>
+        <div id="cloudSetup">
+          <div class="form-grid">
+            <label class="field field-wide"><span>Supabase Project URL</span><input id="supabaseUrl" type="url" placeholder="https://xxxx.supabase.co"></label>
+            <label class="field field-wide"><span>Supabase Publishable / anon key</span><input id="supabaseKey" type="password"></label>
+            <button class="button button-primary field-wide" id="saveCloudConfig" type="button" data-i18n="saveCloudConfig">Cloud-Konfiguration speichern</button>
+          </div>
+        </div>
+        <div id="cloudAuth" class="cloud-section">
+          <p id="cloudState" class="cloud-state"></p>
+          <div class="form-grid">
+            <label class="field"><span data-i18n="email">E-Mail</span><input id="cloudEmail" type="email"></label>
+            <label class="field"><span data-i18n="password">Passwort</span><input id="cloudPassword" type="password"></label>
+            <button class="button button-primary" id="cloudLogin" type="button" data-i18n="login">Anmelden</button>
+            <button class="button button-secondary" id="cloudSignup" type="button" data-i18n="signup">Konto erstellen</button>
+          </div>
+          <div class="cloud-actions">
+            <button class="button button-secondary" id="cloudTest" type="button" data-i18n="testCloud">Cloud-Verbindung testen</button>
+            <button class="button button-primary" id="cloudUpload" type="button" data-i18n="uploadCloud">Lokale Daten hochladen</button>
+            <button class="button button-secondary" id="cloudDownload" type="button" data-i18n="downloadCloud">Cloud-Daten laden</button>
+            <button class="button button-secondary" id="cloudLogout" type="button" data-i18n="logout">Abmelden</button>
+          </div>
+          <div id="cloudTestResult" class="cloud-test-result" hidden></div>
+          <p class="privacy-note" data-i18n="syncWarning">Beim Hochladen werden Kunden- und Angebotsdaten in Ihrem Supabase-Projekt gespeichert.</p>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script src="vendor/jspdf.umd.min.js"></script>
+  <script src="vendor/supabase.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
