@@ -17,11 +17,6 @@
       <p class="eyebrow" data-i18n="protectedAccess">GESCHÜTZTER ZUGANG</p>
       <h1 data-i18n="loginTitle">Bei HailQuote anmelden</h1>
       <p class="auth-copy" data-i18n="loginHint">Die Anwendung und Kundendaten sind nur für autorisierte Benutzer zugänglich.</p>
-      <div id="gateConfig" class="auth-config">
-        <label class="field"><span>Supabase Project URL</span><input id="gateSupabaseUrl" type="url" placeholder="https://xxxx.supabase.co"></label>
-        <label class="field"><span>Supabase Publishable / anon key</span><input id="gateSupabaseKey" type="password"></label>
-        <button class="button button-secondary button-full" id="gateSaveConfig" type="button" data-i18n="saveCloudConfig">Cloud-Konfiguration speichern</button>
-      </div>
       <div class="auth-fields">
         <label class="field"><span data-i18n="email">E-Mail</span><input id="gateEmail" type="email" autocomplete="username"></label>
         <label class="field"><span data-i18n="password">Passwort</span><input id="gatePassword" type="password" autocomplete="current-password"></label>
@@ -323,13 +318,6 @@
         <div class="card-heading">
           <span class="step">☁</span>
           <div><h2 data-i18n="cloudSync">Cloud-Synchronisierung</h2><p data-i18n="cloudHint">Optional mit einem eigenen Supabase-Projekt</p></div>
-        </div>
-        <div id="cloudSetup">
-          <div class="form-grid">
-            <label class="field field-wide"><span>Supabase Project URL</span><input id="supabaseUrl" type="url" placeholder="https://xxxx.supabase.co"></label>
-            <label class="field field-wide"><span>Supabase Publishable / anon key</span><input id="supabaseKey" type="password"></label>
-            <button class="button button-primary field-wide" id="saveCloudConfig" type="button" data-i18n="saveCloudConfig">Cloud-Konfiguration speichern</button>
-          </div>
         </div>
         <div id="cloudAuth" class="cloud-section">
           <p id="cloudState" class="cloud-state"></p>
