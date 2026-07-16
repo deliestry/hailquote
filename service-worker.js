@@ -1,4 +1,4 @@
-const CACHE = "hailquote-v27";
+const CACHE = "hailquote-v28";
 const ASSETS = [
   "./",
   "./index.html",

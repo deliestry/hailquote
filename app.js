@@ -1,6 +1,6 @@
 const translations = {
   de: {
-    appLanguage: "App-Sprache", newQuote: "Neues Angebot", exportPdf: "Als PDF exportieren", archive: "Archiv", settings: "Firma",
+    appLanguage: "App-Sprache", newQuote: "Neues Angebot", saveDraft: "Entwurf speichern", draftSaved: "Der Entwurf wurde für den späteren Versand im Archiv gespeichert.", exportPdf: "Als PDF exportieren", archive: "Archiv", settings: "Firma",
     eyebrow: "KALKULATION & ANGEBOT", title: "Hagelschaden sicher kalkulieren.",
     subtitle: "Schaden erfassen, Kosten berechnen und ein professionelles Kundenangebot erstellen.",
     autoSaved: "Lokal gespeichert", customer: "Kundendaten", customerHint: "Empfänger des Angebots",
@@ -30,7 +30,7 @@ const translations = {
     parts: ["Motorhaube", "Dach", "Kofferraumdeckel", "Kotflügel vorne links", "Kotflügel vorne rechts", "Tür vorne links", "Tür vorne rechts", "Tür hinten links", "Tür hinten rechts", "Seitenteil links", "Seitenteil rechts"]
   },
   en: {
-    appLanguage: "App language", newQuote: "New quote", exportPdf: "Export PDF", archive: "Archive", settings: "Company",
+    appLanguage: "App language", newQuote: "New quote", saveDraft: "Save draft", draftSaved: "The draft was saved in the archive for later sending.", exportPdf: "Export PDF", archive: "Archive", settings: "Company",
     eyebrow: "CALCULATION & QUOTE", title: "Calculate hail damage with confidence.",
     subtitle: "Record damage, calculate costs and create a professional customer quote.",
     autoSaved: "Saved locally", customer: "Customer details", customerHint: "Recipient of the quote",
@@ -60,7 +60,7 @@ const translations = {
     parts: ["Hood", "Roof", "Trunk lid", "Front left fender", "Front right fender", "Front left door", "Front right door", "Rear left door", "Rear right door", "Left quarter panel", "Right quarter panel"]
   },
   es: {
-    appLanguage: "Idioma de la app", newQuote: "Nuevo presupuesto", exportPdf: "Exportar PDF", archive: "Archivo", settings: "Empresa",
+    appLanguage: "Idioma de la app", newQuote: "Nuevo presupuesto", saveDraft: "Guardar borrador", draftSaved: "El borrador se ha guardado en el archivo para enviarlo más tarde.", exportPdf: "Exportar PDF", archive: "Archivo", settings: "Empresa",
     eyebrow: "CÁLCULO Y PRESUPUESTO", title: "Calcula daños por granizo con precisión.",
     subtitle: "Registra los daños, calcula los costes y crea un presupuesto profesional.",
     autoSaved: "Guardado localmente", customer: "Datos del cliente", customerHint: "Destinatario del presupuesto",
@@ -520,6 +520,17 @@ function archiveCurrentQuote() {
   renderArchive();
 }
 
+function saveDraft() {
+  const data = currentQuoteData();
+  if (!data.quoteNumber?.trim()) {
+    form.elements.quoteNumber.focus();
+    return;
+  }
+  $("#quoteStatus").value = "draft";
+  archiveCurrentQuote();
+  alert(translations[uiLanguage].draftSaved);
+}
+
 function renderArchive() {
   const list = $("#archiveList");
   const quotes = store.quotes();
@@ -761,6 +772,7 @@ $("#uiLanguage").addEventListener("change", event => {
   calculate();
 });
 $("#previewOffer").addEventListener("click", previewPdf);
+$("#saveDraft").addEventListener("click", saveDraft);
 $("#exportPdf").addEventListener("click", generatePdf);
 $("#printOffer").addEventListener("click", generatePdf);
 document.querySelectorAll("[data-pdf-language]").forEach(button => button.addEventListener("click", () => generatePdf(button.dataset.pdfLanguage)));
