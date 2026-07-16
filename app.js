@@ -550,7 +550,7 @@ async function imageToDataUrl(url) {
   });
 }
 
-async function generateBudgetPdf(data, totals, lang) {
+async function generateBudgetPdf(data, totals, lang, action = "save", previewWindow = null) {
   const { jsPDF } = window.jspdf;
   const pdf = new jsPDF({ unit: "mm", format: "a4" });
   const labels = {
@@ -559,16 +559,16 @@ async function generateBudgetPdf(data, totals, lang) {
     es: { title: "PRESUPUESTO", to: "Presupuesto para:", car: "Datos del vehículo:", order: "N.º presupuesto:", date: "Fecha:", rate: "Tarifa por hora:", number: "N.º", parts: "Piezas", small: "Pequeña", medium: "Mediana", large: "Grande", type: "Tipo", paint: "Pintura", time: "Tiempo", quantity: "Cantidad", value: "Importe", subtotal: "Subtotal", discount: "Descuento", disassembly: "Desmontaje", materials: "Material", vat: "IVA", amount: "Total", yes: "Sí", no: "No" }
   }[lang];
   const safe = value => String(value || "").replace(/€/g, "EUR").replace(/[–—]/g, "-").replace(/[^\x20-\xFF]/g, "");
-  const euro = value => money(value, lang).replace("€", "EUR");
+  const euro = value => money(value, lang);
   const date = data.quoteDate ? new Intl.DateTimeFormat(lang === "en" ? "en-GB" : lang).format(new Date(`${data.quoteDate}T12:00:00`)) : "";
 
   try {
     const logo = await imageToDataUrl("assets/deliestry-logo.jpg");
-    pdf.addImage(logo, "JPEG", 14, 9, 47, 20, undefined, "FAST");
+    pdf.addImage(logo, "JPEG", 14, 13, 37, 16, undefined, "FAST");
   } catch (_) {}
 
   pdf.setTextColor(20); pdf.setFont("helvetica", "normal"); pdf.setFontSize(9);
-  pdf.text(["DELIESTRY, S.L.U.", "service@deliestry.eu", "+34 658 116 486", "C/ Colón 4 - 46950", "Valencia / España"], 96, 12, { align: "center", lineHeightFactor: 1.55 });
+  pdf.text(["Deliestry SL.", "pdr@deliestry.com", "+34 658 37 25 19", "Calle Colón 4 - Bj 46950", "España / València / Xirivella"], 96, 12, { align: "center", lineHeightFactor: 1.55 });
   pdf.setFont("helvetica", "bold"); pdf.setFontSize(17); pdf.text(labels.title, 194, 13, { align: "right" });
   pdf.setFont("helvetica", "normal"); pdf.setFontSize(9);
   pdf.text(labels.order, 137, 23); pdf.text(safe(data.quoteNumber), 194, 23, { align: "right" });
@@ -641,8 +641,14 @@ async function generateBudgetPdf(data, totals, lang) {
 
   pdf.setTextColor(105); pdf.setFont("helvetica", "normal"); pdf.setFontSize(6.8);
   pdf.text("DELIESTRY, S.L.U. · VAT B44950608 · EORI ESB44950608 · service@deliestry.eu", 105, 286, { align: "center" });
-  pdf.save(`${safe(data.quoteNumber || "DELIESTRY-Budget")}.pdf`);
-  archiveCurrentQuote();
+  if (action === "preview") {
+    const pdfUrl = pdf.output("bloburl");
+    if (previewWindow) previewWindow.location.href = pdfUrl;
+    else window.open(pdfUrl, "_blank");
+  } else {
+    pdf.save(`${safe(data.quoteNumber || "DELIESTRY-Budget")}.pdf`);
+    archiveCurrentQuote();
+  }
 }
 
 async function generatePdf() {
@@ -710,6 +716,14 @@ async function generatePdf() {
   archiveCurrentQuote();
 }
 
+async function previewPdf() {
+  if (!validateQuote()) return;
+  if (!window.jspdf?.jsPDF) return openOffer();
+  const lang = $("#offerLanguage").value;
+  const previewWindow = window.open("about:blank", "_blank");
+  return generateBudgetPdf(currentQuoteData(), calculate(), lang, "preview", previewWindow);
+}
+
 function openSimpleModal(id) { $(`#${id}`).hidden = false; document.body.style.overflow = "hidden"; }
 function closeSimpleModal(id) { $(`#${id}`).hidden = true; document.body.style.overflow = ""; }
 
@@ -734,7 +748,7 @@ document.addEventListener("input", event => {
   if (event.target.matches("input, textarea, select")) calculate();
 });
 $("#uiLanguage").addEventListener("change", event => setLanguage(event.target.value));
-$("#previewOffer").addEventListener("click", openOffer);
+$("#previewOffer").addEventListener("click", previewPdf);
 $("#exportPdf").addEventListener("click", generatePdf);
 $("#printOffer").addEventListener("click", generatePdf);
 document.querySelectorAll("[data-close-modal]").forEach(el => el.addEventListener("click", closeOffer));
