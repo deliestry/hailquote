@@ -1,9 +1,9 @@
-const CACHE = "hailquote-v43";
+const CACHE = "hailquote-v44";
 const ASSETS = [
   "./",
   "./index.html",
   "./styles.css",
-  "./app.js",
+  "./app.js?v=44",
   "./manifest.webmanifest",
   "./icon.svg",
   "./assets/deliestry-logo.jpg",
