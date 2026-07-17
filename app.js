@@ -353,7 +353,7 @@ async function saveCloudOffer(record) {
 }
 
 async function deleteCloudOffer(id) {
-  if (!cloudClient || currentUserRole === "viewer") return;
+  if (!cloudClient || currentUserRole !== "admin") return;
   await cloudClient.from("app_offers").delete().eq("id", id);
 }
 
@@ -687,14 +687,15 @@ function renderArchive() {
   const list = $("#archiveList");
   const quotes = currentUserRole === "editor" ? store.quotes().filter(q => q.ownerId === currentUserId) : store.quotes();
   const canManage = currentUserRole === "admin" || currentUserRole === "editor";
+  const canDelete = currentUserRole === "admin";
   list.innerHTML = quotes.length ? quotes.map(q => `
     <div class="archive-item">
       <div><strong>${escapeHtml(q.quoteNumber)} · ${escapeHtml(q.customerName || "—")}</strong><span>${escapeHtml(q.brandModel || "—")} · ${money(q.gross, q.offerLanguage)} · ${new Date(q.savedAt).toLocaleDateString()}</span><span class="status-badge">${translations[uiLanguage][`status${(q.status || "draft")[0].toUpperCase()}${(q.status || "draft").slice(1)}`]}</span></div>
       <div class="archive-actions">
         ${canManage ? `<button class="button button-secondary" data-load-quote="${escapeHtml(q.id)}">${translations[uiLanguage].loadQuote}</button>` : ""}
         <button class="button button-secondary" data-review-quote="${escapeHtml(q.id)}">${translations[uiLanguage].reviewQuote}</button>
-        ${canManage ? `<button class="button button-primary" data-send-quote="${escapeHtml(q.id)}">${translations[uiLanguage].sendQuote}</button>
-        <button class="button button-secondary" data-delete-quote="${escapeHtml(q.id)}">${translations[uiLanguage].deleteQuote}</button>` : ""}
+        ${canManage ? `<button class="button button-primary" data-send-quote="${escapeHtml(q.id)}">${translations[uiLanguage].sendQuote}</button>` : ""}
+        ${canDelete ? `<button class="button button-secondary" data-delete-quote="${escapeHtml(q.id)}">${translations[uiLanguage].deleteQuote}</button>` : ""}
       </div>
     </div>`).join("") : `<div class="archive-empty">${translations[uiLanguage].emptyArchive}</div>`;
 }
@@ -1019,7 +1020,7 @@ $("#archiveList").addEventListener("click", event => {
   if (loadId) { const quote = store.quotes().find(q => q.id === loadId); if (quote) applyQuoteData(quote); closeSimpleModal("archiveModal"); }
   if (reviewId) { const quote = store.quotes().find(q => q.id === reviewId); if (quote) reviewArchivedQuote(quote); }
   if (sendId) { const quote = store.quotes().find(q => q.id === sendId); if (quote) sendArchivedQuote(quote); }
-  if (deleteId) { store.set("quotes", store.quotes().filter(q => q.id !== deleteId)); deleteCloudOffer(deleteId); renderArchive(); }
+  if (deleteId && currentUserRole === "admin") { store.set("quotes", store.quotes().filter(q => q.id !== deleteId)); deleteCloudOffer(deleteId); renderArchive(); }
 });
 $("#exportBackup").addEventListener("click", () => {
   const backup = {
