@@ -1,6 +1,6 @@
 const translations = {
   de: {
-    appLanguage: "App-Sprache", newQuote: "Neues Angebot", saveDraft: "Entwurf speichern", draftSaved: "Der Entwurf wurde für den späteren Versand im Archiv gespeichert.", exportPdf: "Als PDF exportieren", archive: "Archiv", settings: "Firma", users: "Benutzer", userManagement: "Benutzerrechte", userManagementHint: "Rollen für angemeldete Benutzer festlegen", roleAdmin: "Administrator", roleEditor: "Bearbeiter", roleViewer: "Betrachter",
+    appLanguage: "App-Sprache", newQuote: "Neues Angebot", saveDraft: "Entwurf speichern", draftSaved: "Der Entwurf wurde für den späteren Versand im Archiv gespeichert.", exportPdf: "Als PDF exportieren", archive: "Archiv", customers: "Kunden", customerDirectory: "Kunden", customerDirectoryHint: "Registrierte Kunden und zugehörige Aufträge", customerOrders: "Aufträge", noCustomerOrders: "Keine zugehörigen Aufträge vorhanden.", settings: "Firma", users: "Benutzer", userManagement: "Benutzerrechte", userManagementHint: "Rollen für angemeldete Benutzer festlegen", roleAdmin: "Administrator", roleEditor: "Bearbeiter", roleViewer: "Betrachter",
     eyebrow: "KALKULATION & ANGEBOT", title: "Hagelschaden sicher kalkulieren.",
     subtitle: "Schaden erfassen, Kosten berechnen und ein professionelles Kundenangebot erstellen.",
     autoSaved: "Lokal gespeichert", customer: "Kundendaten", customerHint: "Empfänger des Angebots",
@@ -31,7 +31,7 @@ const translations = {
     parts: ["Motorhaube", "Dach", "Kofferraumdeckel", "Kotflügel vorne links", "Kotflügel vorne rechts", "Tür vorne links", "Tür vorne rechts", "Tür hinten links", "Tür hinten rechts", "Seitenteil links", "Seitenteil rechts"]
   },
   en: {
-    appLanguage: "App language", newQuote: "New quote", saveDraft: "Save draft", draftSaved: "The draft was saved in the archive for later sending.", exportPdf: "Export PDF", archive: "Archive", settings: "Company", users: "Users", userManagement: "User permissions", userManagementHint: "Assign roles to signed-in users", roleAdmin: "Administrator", roleEditor: "Editor", roleViewer: "Viewer",
+    appLanguage: "App language", newQuote: "New quote", saveDraft: "Save draft", draftSaved: "The draft was saved in the archive for later sending.", exportPdf: "Export PDF", archive: "Archive", customers: "Customers", customerDirectory: "Customers", customerDirectoryHint: "Registered customers and related orders", customerOrders: "Orders", noCustomerOrders: "No related orders available.", settings: "Company", users: "Users", userManagement: "User permissions", userManagementHint: "Assign roles to signed-in users", roleAdmin: "Administrator", roleEditor: "Editor", roleViewer: "Viewer",
     eyebrow: "CALCULATION & QUOTE", title: "Calculate hail damage with confidence.",
     subtitle: "Record damage, calculate costs and create a professional customer quote.",
     autoSaved: "Saved locally", customer: "Customer details", customerHint: "Recipient of the quote",
@@ -62,7 +62,7 @@ const translations = {
     parts: ["Hood", "Roof", "Trunk lid", "Front left fender", "Front right fender", "Front left door", "Front right door", "Rear left door", "Rear right door", "Left quarter panel", "Right quarter panel"]
   },
   es: {
-    appLanguage: "Idioma de la app", newQuote: "Nuevo presupuesto", saveDraft: "Guardar borrador", draftSaved: "El borrador se ha guardado en el archivo para enviarlo más tarde.", exportPdf: "Exportar PDF", archive: "Archivo", settings: "Empresa", users: "Usuarios", userManagement: "Permisos de usuario", userManagementHint: "Asignar roles a usuarios registrados", roleAdmin: "Administrador", roleEditor: "Editor", roleViewer: "Lector",
+    appLanguage: "Idioma de la app", newQuote: "Nuevo presupuesto", saveDraft: "Guardar borrador", draftSaved: "El borrador se ha guardado en el archivo para enviarlo más tarde.", exportPdf: "Exportar PDF", archive: "Archivo", customers: "Clientes", customerDirectory: "Clientes", customerDirectoryHint: "Clientes registrados y encargos relacionados", customerOrders: "Encargos", noCustomerOrders: "No hay encargos relacionados.", settings: "Empresa", users: "Usuarios", userManagement: "Permisos de usuario", userManagementHint: "Asignar roles a usuarios registrados", roleAdmin: "Administrador", roleEditor: "Editor", roleViewer: "Lector",
     eyebrow: "CÁLCULO Y PRESUPUESTO", title: "Calcula daños por granizo con precisión.",
     subtitle: "Registra los daños, calcula los costes y crea un presupuesto profesional.",
     autoSaved: "Guardado localmente", customer: "Datos del cliente", customerHint: "Destinatario del presupuesto",
@@ -193,6 +193,7 @@ function applyRolePermissions() {
   $("#openSettings").hidden = !isAdmin;
   $("#openUsers").hidden = !isAdmin;
   $("#openCloud").hidden = !isAdmin;
+  $("#openCustomers").hidden = !canEdit;
   document.body.classList.toggle("viewer-role", !canEdit);
 }
 
@@ -533,6 +534,7 @@ function save() {
   const data = Object.fromEntries(new FormData(form));
   fields.forEach(id => data[id] = $(`#${id}`).value);
   data.offerLanguage = $("#offerLanguage").value;
+  data.customerId = $("#customerSelect").value || "";
   data.dents = [...document.querySelectorAll(".dent-input")].map(i => i.value);
   data.rowDetails = [...rows.querySelectorAll("tr")].map(row => ({ partType: row.querySelector(".part-type").value, paint: row.querySelector(".paint-input").value, hours: row.querySelector(".hours-input").value }));
   localStorage.setItem("hailquote.quote", JSON.stringify(data));
@@ -543,6 +545,7 @@ function currentQuoteData() {
   const data = Object.fromEntries(new FormData(form));
   fields.forEach(id => data[id] = $(`#${id}`).value);
   data.offerLanguage = $("#offerLanguage").value;
+  data.customerId = $("#customerSelect").value || "";
   data.dents = [...document.querySelectorAll(".dent-input")].map(i => i.value);
   data.rowDetails = [...rows.querySelectorAll("tr")].map(row => ({ partType: row.querySelector(".part-type").value, paint: row.querySelector(".paint-input").value, hours: row.querySelector(".hours-input").value }));
   return data;
@@ -555,6 +558,7 @@ function applyQuoteData(data) {
     if (el) el.value = value;
   });
   $("#offerLanguage").value = data.offerLanguage || "de";
+  if (data.customerId) $("#customerSelect").value = data.customerId;
   document.querySelectorAll(".dent-input").forEach((input, i) => input.value = data.dents?.[i] || 0);
   rows.querySelectorAll("tr").forEach((row, i) => {
     row.querySelector(".part-type").value = data.rowDetails?.[i]?.partType || "-";
@@ -721,6 +725,28 @@ function renderArchive() {
         ${canDelete ? `<button class="button button-secondary" data-delete-quote="${escapeHtml(q.id)}">${translations[uiLanguage].deleteQuote}</button>` : ""}
       </div>
     </div>`).join("") : `<div class="archive-empty">${translations[uiLanguage].emptyArchive}</div>`;
+}
+
+function permittedQuotes() {
+  return currentUserRole === "editor" ? store.quotes().filter(q => q.ownerId === currentUserId) : store.quotes();
+}
+
+function quotesForCustomer(customer) {
+  const email = String(customer.email || "").trim().toLowerCase();
+  const name = String(customer.customerName || "").trim().toLowerCase();
+  return permittedQuotes().filter(quote => quote.customerId === customer.id || (email && String(quote.email || "").trim().toLowerCase() === email) || (!email && name && String(quote.customerName || "").trim().toLowerCase() === name));
+}
+
+function renderCustomerOrders(customer) {
+  const orders = quotesForCustomer(customer);
+  $("#customerOrderList").innerHTML = `<h3>${escapeHtml(customer.customerName)} · ${translations[uiLanguage].customerOrders}</h3>` + (orders.length ? orders.map(order => `
+    <div class="archive-item"><div><strong>${escapeHtml(order.quoteNumber || "—")}</strong><span>${escapeHtml(order.brandModel || "—")} · ${money(order.gross, order.offerLanguage || uiLanguage)}</span><span>${new Date(order.savedAt).toLocaleDateString()}</span></div><span class="status-badge">${escapeHtml(order.status || "draft")}</span></div>`).join("") : `<div class="archive-empty">${translations[uiLanguage].noCustomerOrders}</div>`);
+}
+
+function renderCustomers() {
+  const customers = [...store.customers()].sort((a, b) => String(a.customerName || "").localeCompare(String(b.customerName || "")));
+  $("#customerDirectoryList").innerHTML = customers.length ? customers.map(customer => `<button class="customer-directory-button" type="button" data-customer-details="${escapeHtml(customer.id)}"><strong>${escapeHtml(customer.customerName)}</strong><span>${escapeHtml(customer.email || customer.phone || "—")}</span></button>`).join("") : `<div class="archive-empty">${translations[uiLanguage].noCustomerOrders}</div>`;
+  $("#customerOrderList").innerHTML = `<div class="archive-empty">${translations[uiLanguage].customerDirectoryHint}</div>`;
 }
 
 function loadCompany() {
@@ -1025,8 +1051,17 @@ $("#customerSelect").addEventListener("change", event => {
 });
 $("#openSettings").addEventListener("click", () => { loadCompany(); openSimpleModal("settingsModal"); });
 $("#openArchive").addEventListener("click", () => { renderArchive(); openSimpleModal("archiveModal"); });
+$("#openCustomers").addEventListener("click", () => { renderCustomers(); openSimpleModal("customersModal"); });
 document.querySelectorAll("[data-close-settings]").forEach(el => el.addEventListener("click", () => closeSimpleModal("settingsModal")));
 document.querySelectorAll("[data-close-archive]").forEach(el => el.addEventListener("click", () => closeSimpleModal("archiveModal")));
+document.querySelectorAll("[data-close-customers]").forEach(el => el.addEventListener("click", () => closeSimpleModal("customersModal")));
+$("#customerDirectoryList").addEventListener("click", event => {
+  const button = event.target.closest("[data-customer-details]");
+  if (!button) return;
+  document.querySelectorAll(".customer-directory-button").forEach(item => item.classList.toggle("active", item === button));
+  const customer = store.customers().find(item => item.id === button.dataset.customerDetails);
+  if (customer) renderCustomerOrders(customer);
+});
 $("#saveCompany").addEventListener("click", saveCompany);
 $("#companyLogo").addEventListener("change", event => {
   const file = event.target.files[0];
@@ -1136,6 +1171,6 @@ $("#newQuote").addEventListener("click", () => {
 });
 
 if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
-  navigator.serviceWorker.register("./service-worker.js?v=44").catch(() => {});
+  navigator.serviceWorker.register("./service-worker.js?v=45").catch(() => {});
 }
 initCloud();
