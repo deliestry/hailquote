@@ -8,6 +8,22 @@ create table if not exists public.app_offers (
 
 alter table public.app_offers enable row level security;
 
+create table if not exists public.app_offer_viewers (
+  offer_id text not null references public.app_offers(id) on delete cascade,
+  viewer_id uuid not null references auth.users(id) on delete cascade,
+  assigned_by uuid not null references auth.users(id),
+  assigned_at timestamptz not null default now(),
+  primary key (offer_id, viewer_id)
+);
+
+create or replace function public.can_view_assigned_offer(offer text)
+returns boolean language sql stable security definer set search_path = public
+as $$ select exists(select 1 from public.app_offer_viewers where offer_id = offer and viewer_id = auth.uid()) $$;
+
+create or replace function public.owns_offer(offer text)
+returns boolean language sql stable security definer set search_path = public
+as $$ select exists(select 1 from public.app_offers where id = offer and owner_id = auth.uid()) $$;
+
 drop policy if exists "Offer visibility by role" on public.app_offers;
 create policy "Offer visibility by role"
 on public.app_offers for select to authenticated
@@ -16,7 +32,7 @@ using (
   or exists (
     select 1 from public.app_user_roles r
     where r.user_id = auth.uid()
-      and (r.role = 'viewer' or (r.role = 'editor' and app_offers.owner_id = auth.uid()))
+      and ((r.role = 'viewer' and public.can_view_assigned_offer(app_offers.id)) or (r.role = 'editor' and app_offers.owner_id = auth.uid()))
   )
 );
 
@@ -38,6 +54,18 @@ on public.app_offers for delete to authenticated
 using (public.is_app_admin());
 
 grant select, insert, update, delete on public.app_offers to authenticated;
+
+alter table public.app_offer_viewers enable row level security;
+drop policy if exists "Read offer assignments" on public.app_offer_viewers;
+create policy "Read offer assignments" on public.app_offer_viewers for select to authenticated
+using (public.is_app_admin() or viewer_id = auth.uid() or public.owns_offer(offer_id));
+drop policy if exists "Assign viewers to offers" on public.app_offer_viewers;
+create policy "Assign viewers to offers" on public.app_offer_viewers for insert to authenticated
+with check ((public.is_app_admin() or public.owns_offer(offer_id)) and assigned_by = auth.uid());
+drop policy if exists "Remove offer assignments" on public.app_offer_viewers;
+create policy "Remove offer assignments" on public.app_offer_viewers for delete to authenticated
+using (public.is_app_admin() or public.owns_offer(offer_id));
+grant select, insert, delete on public.app_offer_viewers to authenticated;
 
 -- Bestehende Angebote werden dem Benutzer zugeordnet, der den gemeinsamen
 -- Datenbestand zuletzt gespeichert hat. Administratoren behalten Zugriff auf alle.
