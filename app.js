@@ -185,6 +185,7 @@ function applyRolePermissions() {
   ["newQuote", "exportPdf", "saveDraft"].forEach(id => { const element = $(`#${id}`); if (element) element.disabled = !canEdit; });
   $("#openSettings").hidden = !isAdmin;
   $("#openUsers").hidden = !isAdmin;
+  $("#openCloud").hidden = !isAdmin;
   document.body.classList.toggle("viewer-role", !canEdit);
 }
 
