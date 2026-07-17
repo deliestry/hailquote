@@ -60,6 +60,7 @@
       </label>
       <button class="button button-secondary" id="newQuote" type="button" data-i18n="newQuote">Neues Angebot</button>
       <button class="button button-secondary" id="openArchive" type="button" data-i18n="archive">Archiv</button>
+      <button class="button button-secondary" id="openCustomers" type="button" data-i18n="customers">Kunden</button>
       <button class="button button-secondary" id="openSettings" type="button" data-i18n="settings">Firma</button>
       <button class="button button-secondary" id="openCloud" type="button" data-i18n="cloud">Cloud</button>
       <button class="button button-secondary" id="openUsers" type="button" data-i18n="users" hidden>Benutzer</button>
@@ -355,6 +356,23 @@
     </div>
   </div>
 
+  <div class="modal app-shell" id="customersModal" hidden>
+    <div class="modal-backdrop" data-close-customers></div>
+    <div class="modal-panel archive-panel" role="dialog" aria-modal="true">
+      <div class="modal-toolbar"><button class="button button-secondary" type="button" data-close-customers data-i18n="close">Schließen</button></div>
+      <section class="card">
+        <div class="card-heading">
+          <span class="step">👥</span>
+          <div><h2 data-i18n="customerDirectory">Kunden</h2><p data-i18n="customerDirectoryHint">Registrierte Kunden und zugehörige Aufträge</p></div>
+        </div>
+        <div class="customer-directory-grid">
+          <div id="customerDirectoryList" class="archive-list"></div>
+          <div id="customerOrderList" class="customer-orders"></div>
+        </div>
+      </section>
+    </div>
+  </div>
+
   <div class="modal compact-modal app-shell" id="cloudModal" hidden>
     <div class="modal-backdrop" data-close-cloud></div>
     <div class="modal-panel settings-panel" role="dialog" aria-modal="true">
@@ -400,6 +418,6 @@
 
   <script src="vendor/jspdf.umd.min.js"></script>
   <script src="vendor/supabase.js"></script>
-  <script src="app.js?v=44"></script>
+  <script src="app.js?v=45"></script>
 </body>
 </html>
