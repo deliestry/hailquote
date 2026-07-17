@@ -104,6 +104,7 @@ const fields = ["smallRate", "mediumRate", "largeRate", "hourlyRate", "calculati
 let uiLanguage = localStorage.getItem("hailquote.uiLanguage") || "de";
 let cloudClient = null;
 let currentUserRole = "viewer";
+let currentUserId = "";
 let cloudSyncTimer = null;
 let cloudPollTimer = null;
 let applyingCloudPayload = false;
@@ -141,7 +142,7 @@ const store = {
 };
 
 function cloudPayload() {
-  return { version: 1, company: store.company(), customers: store.customers(), quotes: store.quotes(), sequence: store.get("sequence", 0), currentQuote: currentQuoteData() };
+  return { version: 2, company: store.company(), customers: store.customers(), sequence: store.get("sequence", 0) };
 }
 
 function initCloud() {
@@ -173,6 +174,7 @@ async function loadCurrentUserRole() {
   if (!cloudClient) return;
   const { data: auth } = await cloudClient.auth.getUser();
   if (!auth.user) return;
+  currentUserId = auth.user.id;
   const { data } = await cloudClient.from("app_user_roles").select("role").eq("user_id", auth.user.id).maybeSingle();
   currentUserRole = data?.role || "viewer";
   applyRolePermissions();
@@ -306,9 +308,7 @@ function applyCloudPayload(payload) {
   });
   store.set("company", payload.company || {});
   store.set("customers", [...mergedCustomers.values()]);
-  store.set("quotes", payload.quotes || []);
   store.set("sequence", +payload.sequence || 0);
-  if (payload.currentQuote) applyQuoteData(payload.currentQuote);
   refreshCustomers();
   applyingCloudPayload = false;
 }
@@ -329,8 +329,32 @@ async function downloadCloud(silent = false) {
   if (data.updated_at && data.updated_at === lastCloudUpdate) return true;
   lastCloudUpdate = data.updated_at || "";
   applyCloudPayload(data.payload || {});
+  await loadCloudOffers();
   if (!silent) alert(translations[uiLanguage].cloudLoaded);
   return true;
+}
+
+async function loadCloudOffers() {
+  if (!cloudClient) return;
+  const { data: auth } = await cloudClient.auth.getUser();
+  if (!auth.user) return;
+  currentUserId = auth.user.id;
+  const { data, error } = await cloudClient.from("app_offers").select("id,owner_id,payload,updated_at").order("updated_at", { ascending: false });
+  if (error) return;
+  store.set("quotes", (data || []).map(row => ({ ...row.payload, id: row.id, ownerId: row.owner_id })));
+  renderArchive();
+}
+
+async function saveCloudOffer(record) {
+  if (!cloudClient || !currentUserId || currentUserRole === "viewer") return;
+  const { id, ownerId, ...payload } = record;
+  const owner_id = ownerId || currentUserId;
+  await cloudClient.from("app_offers").upsert({ id, owner_id, payload, updated_at: new Date().toISOString() }, { onConflict: "id" });
+}
+
+async function deleteCloudOffer(id) {
+  if (!cloudClient || currentUserRole === "viewer") return;
+  await cloudClient.from("app_offers").delete().eq("id", id);
 }
 
 function scheduleCloudUpload() {
@@ -641,8 +665,10 @@ function archiveCurrentQuote() {
   const data = currentQuoteData();
   const totals = calculate();
   const quotes = store.quotes();
-  const record = { ...data, id: data.quoteNumber || crypto.randomUUID(), savedAt: new Date().toISOString(), gross: totals.gross, status: data.quoteStatus || "draft" };
+  const existing = quotes.find(q => q.quoteNumber === data.quoteNumber);
+  const record = { ...data, id: existing?.id || crypto.randomUUID(), ownerId: existing?.ownerId || currentUserId, savedAt: new Date().toISOString(), gross: totals.gross, status: data.quoteStatus || "draft" };
   store.set("quotes", [record, ...quotes.filter(q => q.id !== record.id)].slice(0, 100));
+  saveCloudOffer(record);
   renderArchive();
 }
 
@@ -659,15 +685,16 @@ function saveDraft() {
 
 function renderArchive() {
   const list = $("#archiveList");
-  const quotes = store.quotes();
+  const quotes = currentUserRole === "editor" ? store.quotes().filter(q => q.ownerId === currentUserId) : store.quotes();
+  const canManage = currentUserRole === "admin" || currentUserRole === "editor";
   list.innerHTML = quotes.length ? quotes.map(q => `
     <div class="archive-item">
       <div><strong>${escapeHtml(q.quoteNumber)} · ${escapeHtml(q.customerName || "—")}</strong><span>${escapeHtml(q.brandModel || "—")} · ${money(q.gross, q.offerLanguage)} · ${new Date(q.savedAt).toLocaleDateString()}</span><span class="status-badge">${translations[uiLanguage][`status${(q.status || "draft")[0].toUpperCase()}${(q.status || "draft").slice(1)}`]}</span></div>
       <div class="archive-actions">
-        <button class="button button-secondary" data-load-quote="${escapeHtml(q.id)}">${translations[uiLanguage].loadQuote}</button>
+        ${canManage ? `<button class="button button-secondary" data-load-quote="${escapeHtml(q.id)}">${translations[uiLanguage].loadQuote}</button>` : ""}
         <button class="button button-secondary" data-review-quote="${escapeHtml(q.id)}">${translations[uiLanguage].reviewQuote}</button>
-        <button class="button button-primary" data-send-quote="${escapeHtml(q.id)}">${translations[uiLanguage].sendQuote}</button>
-        <button class="button button-secondary" data-delete-quote="${escapeHtml(q.id)}">${translations[uiLanguage].deleteQuote}</button>
+        ${canManage ? `<button class="button button-primary" data-send-quote="${escapeHtml(q.id)}">${translations[uiLanguage].sendQuote}</button>
+        <button class="button button-secondary" data-delete-quote="${escapeHtml(q.id)}">${translations[uiLanguage].deleteQuote}</button>` : ""}
       </div>
     </div>`).join("") : `<div class="archive-empty">${translations[uiLanguage].emptyArchive}</div>`;
 }
@@ -992,7 +1019,7 @@ $("#archiveList").addEventListener("click", event => {
   if (loadId) { const quote = store.quotes().find(q => q.id === loadId); if (quote) applyQuoteData(quote); closeSimpleModal("archiveModal"); }
   if (reviewId) { const quote = store.quotes().find(q => q.id === reviewId); if (quote) reviewArchivedQuote(quote); }
   if (sendId) { const quote = store.quotes().find(q => q.id === sendId); if (quote) sendArchivedQuote(quote); }
-  if (deleteId) { store.set("quotes", store.quotes().filter(q => q.id !== deleteId)); renderArchive(); }
+  if (deleteId) { store.set("quotes", store.quotes().filter(q => q.id !== deleteId)); deleteCloudOffer(deleteId); renderArchive(); }
 });
 $("#exportBackup").addEventListener("click", () => {
   const backup = {
