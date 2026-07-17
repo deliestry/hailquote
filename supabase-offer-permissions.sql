@@ -32,9 +32,10 @@ using (public.is_app_admin() or (public.can_edit_app() and owner_id = auth.uid()
 with check (public.is_app_admin() or (public.can_edit_app() and owner_id = auth.uid()));
 
 drop policy if exists "Owners delete offers" on public.app_offers;
-create policy "Owners delete offers"
+drop policy if exists "Admins delete offers" on public.app_offers;
+create policy "Admins delete offers"
 on public.app_offers for delete to authenticated
-using (public.is_app_admin() or (public.can_edit_app() and owner_id = auth.uid()));
+using (public.is_app_admin());
 
 grant select, insert, update, delete on public.app_offers to authenticated;
 
