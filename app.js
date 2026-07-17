@@ -20,6 +20,7 @@ const translations = {
     printPdf: "Drucken / PDF", resetConfirm: "Möchten Sie wirklich ein neues Angebot beginnen?", selectCustomer: "Gespeicherten Kunden auswählen", newCustomer: "Neuer Kunde", saveCustomer: "Kunde speichern",
     companyProfile: "Firmenprofil", companyHint: "Erscheint auf jedem Angebot und PDF", companyName: "Firmenname", taxId: "Steuernummer / USt-ID", logo: "Firmenlogo", saveCompany: "Firmenprofil speichern",
     quoteArchive: "Angebotsarchiv", archiveHint: "Gespeicherte und exportierte Angebote", emptyArchive: "Noch keine Angebote archiviert.", loadQuote: "Bearbeiten", reviewQuote: "Prüfen", sendQuote: "An Kunden senden", deleteQuote: "Löschen", missingCustomerEmail: "Für dieses Angebot ist keine Kunden-E-Mail gespeichert.", sendSuccess: "Das Angebot wurde an den Kunden gesendet.", sendFailed: "Der E-Mail-Versand ist fehlgeschlagen:", savedNotice: "Gespeichert",
+    assignViewer: "Betrachter zuweisen", noViewer: "Kein Betrachter",
     quoteStatus: "Angebotsstatus", statusDraft: "Entwurf", statusSent: "Versendet", statusAccepted: "Angenommen", statusRejected: "Abgelehnt",
     vehicleColor: "Farbe", calculationModel: "Kalkulationsmodell", dentModel: "Preis je Delle", hourlyModel: "Arbeitszeit × Stundensatz", hourlyRate: "Stundenverrechnungssatz", partType: "Bauteiltyp", paint: "Lack", time: "Zeit", yes: "Ja", no: "Nein",
     dataManagement: "Datensicherung", exportBackup: "Backup exportieren", importBackup: "Backup importieren", clearData: "Lokale Daten löschen",
@@ -50,6 +51,7 @@ const translations = {
     printPdf: "Print / PDF", resetConfirm: "Do you really want to start a new quote?", selectCustomer: "Select saved customer", newCustomer: "New customer", saveCustomer: "Save customer",
     companyProfile: "Company profile", companyHint: "Appears on every quote and PDF", companyName: "Company name", taxId: "Tax number / VAT ID", logo: "Company logo", saveCompany: "Save company profile",
     quoteArchive: "Quote archive", archiveHint: "Saved and exported quotations", emptyArchive: "No archived quotes yet.", loadQuote: "Edit", reviewQuote: "Review", sendQuote: "Send to customer", deleteQuote: "Delete", missingCustomerEmail: "No customer email is saved for this quote.", sendSuccess: "The quotation was sent to the customer.", sendFailed: "Email delivery failed:", savedNotice: "Saved",
+    assignViewer: "Assign viewer", noViewer: "No viewer",
     quoteStatus: "Quote status", statusDraft: "Draft", statusSent: "Sent", statusAccepted: "Accepted", statusRejected: "Rejected",
     vehicleColor: "Colour", calculationModel: "Calculation model", dentModel: "Price per dent", hourlyModel: "Labour time × hourly rate", hourlyRate: "Hourly rate", partType: "Part type", paint: "Paint", time: "Time", yes: "Yes", no: "No",
     dataManagement: "Data backup", exportBackup: "Export backup", importBackup: "Import backup", clearData: "Delete local data",
@@ -80,6 +82,7 @@ const translations = {
     printPdf: "Imprimir / PDF", resetConfirm: "¿Deseas empezar un presupuesto nuevo?", selectCustomer: "Seleccionar cliente guardado", newCustomer: "Cliente nuevo", saveCustomer: "Guardar cliente",
     companyProfile: "Perfil de empresa", companyHint: "Aparece en cada presupuesto y PDF", companyName: "Nombre de empresa", taxId: "NIF / IVA", logo: "Logotipo", saveCompany: "Guardar perfil",
     quoteArchive: "Archivo de presupuestos", archiveHint: "Presupuestos guardados y exportados", emptyArchive: "Todavía no hay presupuestos archivados.", loadQuote: "Editar", reviewQuote: "Revisar", sendQuote: "Enviar al cliente", deleteQuote: "Eliminar", missingCustomerEmail: "Este presupuesto no tiene un correo electrónico del cliente guardado.", sendSuccess: "El presupuesto se ha enviado al cliente.", sendFailed: "Error al enviar el correo:", savedNotice: "Guardado",
+    assignViewer: "Asignar lector", noViewer: "Sin lector",
     quoteStatus: "Estado", statusDraft: "Borrador", statusSent: "Enviado", statusAccepted: "Aceptado", statusRejected: "Rechazado",
     vehicleColor: "Color", calculationModel: "Modelo de cálculo", dentModel: "Precio por abolladura", hourlyModel: "Tiempo × tarifa por hora", hourlyRate: "Tarifa por hora", partType: "Tipo de pieza", paint: "Pintura", time: "Tiempo", yes: "Sí", no: "No",
     dataManagement: "Copia de seguridad", exportBackup: "Exportar copia", importBackup: "Importar copia", clearData: "Eliminar datos locales",
@@ -105,6 +108,8 @@ let uiLanguage = localStorage.getItem("hailquote.uiLanguage") || "de";
 let cloudClient = null;
 let currentUserRole = "viewer";
 let currentUserId = "";
+let viewerUsers = [];
+let offerViewerAssignments = new Map();
 let cloudSyncTimer = null;
 let cloudPollTimer = null;
 let applyingCloudPayload = false;
@@ -339,10 +344,27 @@ async function loadCloudOffers() {
   const { data: auth } = await cloudClient.auth.getUser();
   if (!auth.user) return;
   currentUserId = auth.user.id;
-  const { data, error } = await cloudClient.from("app_offers").select("id,owner_id,payload,updated_at").order("updated_at", { ascending: false });
+  const [{ data, error }, viewersResult, assignmentsResult] = await Promise.all([
+    cloudClient.from("app_offers").select("id,owner_id,payload,updated_at").order("updated_at", { ascending: false }),
+    cloudClient.from("app_user_roles").select("user_id,email").eq("role", "viewer").order("email"),
+    cloudClient.from("app_offer_viewers").select("offer_id,viewer_id")
+  ]);
   if (error) return;
+  viewerUsers = viewersResult.data || [];
+  offerViewerAssignments = new Map((assignmentsResult.data || []).map(row => [row.offer_id, row.viewer_id]));
   store.set("quotes", (data || []).map(row => ({ ...row.payload, id: row.id, ownerId: row.owner_id })));
   renderArchive();
+}
+
+async function assignOfferViewer(offerId, viewerId) {
+  if (!cloudClient || !["admin", "editor"].includes(currentUserRole)) return;
+  const { error: deleteError } = await cloudClient.from("app_offer_viewers").delete().eq("offer_id", offerId);
+  if (deleteError) return alert(deleteError.message);
+  if (viewerId) {
+    const { error } = await cloudClient.from("app_offer_viewers").insert({ offer_id: offerId, viewer_id: viewerId, assigned_by: currentUserId });
+    if (error) return alert(error.message);
+    offerViewerAssignments.set(offerId, viewerId);
+  } else offerViewerAssignments.delete(offerId);
 }
 
 async function saveCloudOffer(record) {
@@ -692,6 +714,7 @@ function renderArchive() {
     <div class="archive-item">
       <div><strong>${escapeHtml(q.quoteNumber)} · ${escapeHtml(q.customerName || "—")}</strong><span>${escapeHtml(q.brandModel || "—")} · ${money(q.gross, q.offerLanguage)} · ${new Date(q.savedAt).toLocaleDateString()}</span><span class="status-badge">${translations[uiLanguage][`status${(q.status || "draft")[0].toUpperCase()}${(q.status || "draft").slice(1)}`]}</span></div>
       <div class="archive-actions">
+        ${canManage ? `<label>${translations[uiLanguage].assignViewer}<select data-assign-viewer="${escapeHtml(q.id)}"><option value="">${translations[uiLanguage].noViewer}</option>${viewerUsers.map(user => `<option value="${escapeHtml(user.user_id)}"${offerViewerAssignments.get(q.id) === user.user_id ? " selected" : ""}>${escapeHtml(user.email || user.user_id)}</option>`).join("")}</select></label>` : ""}
         ${canManage ? `<button class="button button-secondary" data-load-quote="${escapeHtml(q.id)}">${translations[uiLanguage].loadQuote}</button>` : ""}
         <button class="button button-secondary" data-review-quote="${escapeHtml(q.id)}">${translations[uiLanguage].reviewQuote}</button>
         ${canManage ? `<button class="button button-primary" data-send-quote="${escapeHtml(q.id)}">${translations[uiLanguage].sendQuote}</button>` : ""}
@@ -1021,6 +1044,10 @@ $("#archiveList").addEventListener("click", event => {
   if (reviewId) { const quote = store.quotes().find(q => q.id === reviewId); if (quote) reviewArchivedQuote(quote); }
   if (sendId) { const quote = store.quotes().find(q => q.id === sendId); if (quote) sendArchivedQuote(quote); }
   if (deleteId && currentUserRole === "admin") { store.set("quotes", store.quotes().filter(q => q.id !== deleteId)); deleteCloudOffer(deleteId); renderArchive(); }
+});
+$("#archiveList").addEventListener("change", event => {
+  const offerId = event.target.dataset.assignViewer;
+  if (offerId) assignOfferViewer(offerId, event.target.value);
 });
 $("#exportBackup").addEventListener("click", () => {
   const backup = {
